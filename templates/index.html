@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransitAI - Multi-Modal Travel Planner</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo-container">
+                <i class="fa-solid fa-route logo-icon"></i>
+                <div>
+                    <h1 class="brand-name">Transit<span class="brand-suffix">AI</span></h1>
+                    <span class="subtitle">Multi-Modal Travel Planner & Route Engine</span>
+                </div>
+            </div>
+            <div class="badge badge-ai">
+                <i class="fa-solid fa-microchip"></i>
+                <span>v1.0 (MVP Demo)</span>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+            
+            <!-- Sidebar: Search & AI parser -->
+            <aside class="glass-panel search-sidebar">
+                <h3 class="search-title">
+                    <i class="fa-solid fa-sliders text-indigo"></i>
+                    <span>Route Search</span>
+                </h3>
+                
+                <!-- Search Form -->
+                <form id="search-form" onsubmit="handleFormSubmit(event)">
+                    <div class="form-group">
+                        <label for="source-input">Source Location</label>
+                        <div class="input-container">
+                            <i class="fa-solid fa-circle-dot input-icon" style="color: var(--color-secondary);"></i>
+                            <input type="text" id="source-input" class="form-input" placeholder="e.g., Aluva" required list="location-list">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dest-input">Destination Location</label>
+                        <div class="input-container">
+                            <i class="fa-solid fa-location-dot input-icon" style="color: var(--color-accent);"></i>
+                            <input type="text" id="dest-input" class="form-input" placeholder="e.g., Kaloor" required list="location-list">
+                        </div>
+                    </div>
+                    
+                    <datalist id="location-list">
+                        <!-- Dynamic locations list loaded on startup -->
+                    </datalist>
+
+                    <div class="form-group">
+                        <label for="time-input">Departure Time</label>
+                        <div class="input-container">
+                            <i class="fa-solid fa-clock input-icon"></i>
+                            <input type="time" id="time-input" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Preference Radio Inputs. Selecting route cards selects preference. -->
+                    <div class="form-group">
+                        <label>Preference</label>
+                        <div class="pref-selector">
+                            <div class="pref-option active" id="pref-fastest-card" onclick="setPreference('fastest')">
+                                <input type="radio" id="pref-fastest" name="preference" value="fastest" checked>
+                                <div class="pref-radio-custom"></div>
+                                <span class="pref-option-label">Fastest Route</span>
+                            </div>
+                            <div class="pref-option" id="pref-cheapest-card" onclick="setPreference('cheapest')">
+                                <input type="radio" id="pref-cheapest" name="preference" value="cheapest">
+                                <div class="pref-radio-custom"></div>
+                                <span class="pref-option-label">Cheapest Route</span>
+                            </div>
+                            <div class="pref-option" id="pref-transfers-card" onclick="setPreference('fewest_transfers')">
+                                <input type="radio" id="pref-transfers" name="preference" value="fewest_transfers">
+                                <div class="pref-radio-custom"></div>
+                                <span class="pref-option-label">Fewest Transfers</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Search Routes</span>
+                    </button>
+                </form>
+
+                <!-- AI NLP Search -->
+                <div class="ai-console">
+                    <div class="ai-header">
+                        <i class="fa-solid fa-wand-magic-sparkles ai-icon-pulse"></i>
+                        <h4 style="font-family: 'Outfit';">AI Query Parser</h4>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        Type your travel request in plain English. TransitAI will automatically extract parameters.
+                    </p>
+                    <textarea id="ai-query-input" class="ai-textarea" placeholder="e.g. I want to travel from Aluva to Kaloor before 10 AM under ₹100"></textarea>
+                    
+                    <button type="button" class="btn-primary" style="background: linear-gradient(135deg, var(--color-accent), var(--color-primary)); box-shadow: 0 4px 15px rgba(217, 70, 239, 0.25); margin-top: 0.75rem;" onclick="handleAISubmit()">
+                        <i class="fa-solid fa-wand-magic"></i>
+                        <span>Ask AI Engine</span>
+                    </button>
+                    
+                    <div class="ai-query-examples">
+                        <div style="margin-bottom: 0.25rem;">Try these examples:</div>
+                        <span class="ai-example-tag" onclick="useExample(this)">reach Kaloor before 11 AM under ₹100</span>
+                        <span class="ai-example-tag" onclick="useExample(this)">fastest route from Kalamassery to Vytila</span>
+                        <span class="ai-example-tag" onclick="useExample(this)">cheapest to Tripunithura from Aluva</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Panel: Results -->
+            <main class="results-area">
+                
+                <!-- Welcome Panel -->
+                <div id="welcome-panel" class="glass-panel welcome-panel">
+                    <i class="fa-solid fa-compass welcome-icon-glow"></i>
+                    <h2>Welcome to TransitAI</h2>
+                    <p>
+                        A graph-based, schedule-aware multi-modal route planner. Enter source and destination in the left sidebar, or ask the AI Query Parser to find the best routes using Kochi Metro, Indian Railways, and Bus services.
+                    </p>
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1.25rem; width: 100%;">
+                        <h4 style="margin-bottom: 0.5rem; text-align: left; font-size: 0.9rem; color: var(--text-muted);">SUPPORTED DEMO AREAS & STATIONS:</h4>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Aluva</span>
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Kalamassery</span>
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Edappally</span>
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Kaloor</span>
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Ernakulam Town</span>
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Ernakulam Junction</span>
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Vytila</span>
+                            <span class="badge"><i class="fa-solid fa-location-dot"></i> Tripunithura</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-panel" class="glass-panel spinner-container hidden">
+                    <div class="spinner"></div>
+                    <div>
+                        <h3 style="margin-bottom: 0.25rem;">Analyzing Route Network...</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Building NetworkX graph & matching timetables</p>
+                    </div>
+                </div>
+
+                <!-- Error Box -->
+                <div id="error-panel" class="error-box hidden">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div>
+                        <strong id="error-title">Search Error</strong>
+                        <p id="error-desc" style="font-size: 0.85rem; margin-top: 0.25rem;"></p>
+                    </div>
+                </div>
+
+                <!-- Results Panel (Visible after search) -->
+                <div id="results-panel" class="hidden" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    
+                    <!-- Search Summary / AI interpretation badge -->
+                    <div class="glass-panel search-summary-bar">
+                        <div>
+                            <span id="route-direction" style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                Aluva <i class="fa-solid fa-arrow-right-long" style="color: var(--color-primary);"></i> Kaloor
+                            </span>
+                            <span id="ai-notice" class="badge badge-ai hidden" style="margin-top: 0.5rem;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span id="ai-notice-text">AI Parsed Context</span>
+                            </span>
+                        </div>
+                        <div class="summary-badges">
+                            <span class="badge"><i class="fa-solid fa-clock"></i> <span id="summary-time">08:30</span></span>
+                            <span class="badge badge-budget hidden" id="summary-budget-badge"><i class="fa-solid fa-indian-rupee-sign"></i> Max: <span id="summary-budget">100</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Tabs (Route Cards) -->
+                    <div class="comparison-tabs">
+                        <!-- Fastest -->
+                        <div class="route-card fastest active" id="card-fastest" onclick="selectRouteOption('fastest')">
+                            <div class="card-header">
+                                <span class="card-title">Fastest Route</span>
+                                <span class="card-cost" id="fastest-cost">₹30</span>
+                            </div>
+                            <div class="card-duration" id="fastest-dur">15 <span>mins</span></div>
+                            <div class="card-transfers">
+                                <i class="fa-solid fa-code-branch"></i>
+                                <span id="fastest-transfers">1 Transfer</span>
+                            </div>
+                            <div class="card-modes" id="fastest-modes"></div>
+                        </div>
+
+                        <!-- Cheapest -->
+                        <div class="route-card cheapest" id="card-cheapest" onclick="selectRouteOption('cheapest')">
+                            <div class="card-header">
+                                <span class="card-title">Cheapest Route</span>
+                                <span class="card-cost" id="cheapest-cost">₹15</span>
+                            </div>
+                            <div class="card-duration" id="cheapest-dur">22 <span>mins</span></div>
+                            <div class="card-transfers">
+                                <i class="fa-solid fa-code-branch"></i>
+                                <span id="cheapest-transfers">0 Transfers</span>
+                            </div>
+                            <div class="card-modes" id="cheapest-modes"></div>
+                        </div>
+
+                        <!-- Fewest Transfers -->
+                        <div class="route-card fewest-transfers" id="card-fewest_transfers" onclick="selectRouteOption('fewest_transfers')">
+                            <div class="card-header">
+                                <span class="card-title">Fewest Transfers</span>
+                                <span class="card-cost" id="fewest_transfers-cost">₹28</span>
+                            </div>
+                            <div class="card-duration" id="fewest_transfers-dur">40 <span>mins</span></div>
+                            <div class="card-transfers">
+                                <i class="fa-solid fa-code-branch"></i>
+                                <span id="fewest_transfers-transfers">0 Transfers</span>
+                            </div>
+                            <div class="card-modes" id="fewest_transfers-modes"></div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Details Panel -->
+                    <div class="glass-panel details-panel">
+                        <div class="details-title">
+                            <h3 style="font-family: 'Outfit'; font-size: 1.3rem;">
+                                <i class="fa-solid fa-route" style="color: var(--color-primary);"></i>
+                                <span id="details-route-type">Fastest Route</span> Details
+                            </h3>
+                            <span class="badge" style="background: rgba(255,255,255,0.03);"><span id="details-segment-count">3</span> segments</span>
+                        </div>
+                        
+                        <!-- Dynamic Vertical Timeline -->
+                        <div class="timeline" id="route-timeline">
+                            <!-- Timeline steps inserted dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Provider Integration Docs Box -->
+                <div class="glass-panel docs-panel">
+                    <h4 class="docs-title">
+                        <i class="fa-solid fa-circle-info" style="color: var(--color-secondary);"></i>
+                        Future API Integration Architecture
+                    </h4>
+                    <p>
+                        This system uses a decoupled Provider Architecture. You can easily plug in real-world APIs like Indian Railways (NTES), Kochi Metro, or bus reservation services. To integrate real APIs, simply subclass the <code>TransportProvider</code> interface and override the <code>get_all_segments()</code> method in the <code>providers/</code> directory.
+                    </p>
+                    <a href="https://github.com/Kochi-Metro/rail-planner" target="_blank" class="docs-link">
+                        <span>Read Integration Docs</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Frontend Script -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
