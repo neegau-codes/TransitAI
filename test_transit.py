@@ -22,10 +22,20 @@ class TestTransitAI(unittest.TestCase):
         loc_count = cursor.fetchone()[0]
         self.assertGreater(loc_count, 0, "No locations found in database.")
         
-        # Verify segments table has data
-        cursor.execute("SELECT count(*) FROM segments")
-        seg_count = cursor.fetchone()[0]
-        self.assertGreater(seg_count, 0, "No segments found in database.")
+        # Verify routes table has data
+        cursor.execute("SELECT count(*) FROM routes")
+        routes_count = cursor.fetchone()[0]
+        self.assertGreater(routes_count, 0, "No routes found in database.")
+
+        # Verify schedules table has data
+        cursor.execute("SELECT count(*) FROM schedules")
+        schedules_count = cursor.fetchone()[0]
+        self.assertGreater(schedules_count, 0, "No schedules found in database.")
+
+        # Verify providers table has data
+        cursor.execute("SELECT count(*) FROM providers")
+        providers_count = cursor.fetchone()[0]
+        self.assertGreater(providers_count, 0, "No providers found in database.")
         
         conn.close()
 
@@ -70,6 +80,28 @@ class TestTransitAI(unittest.TestCase):
         self.assertEqual(parsed_2["source"], "Edappally")
         self.assertEqual(parsed_2["destination"], "Tripunithura")
         self.assertEqual(parsed_2["preference"], "fastest")
+
+    def test_flask_endpoints(self):
+        """Verify the Flask REST API endpoints respond correctly."""
+        from app import app
+        client = app.test_client()
+        
+        # Test locations endpoint
+        res = client.get('/api/locations')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertGreater(len(data), 0)
+        
+        # Test search endpoint: Aluva to Kaloor
+        res = client.post('/api/search', json={
+            "source": "Aluva",
+            "destination": "Kaloor",
+            "departure_time": "08:30"
+        })
+        self.assertEqual(res.status_code, 200)
+        routes = res.get_json()
+        self.assertIn("fastest", routes)
+        self.assertGreater(routes["fastest"]["total_duration"], 0)
 
 if __name__ == "__main__":
     unittest.main()

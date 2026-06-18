@@ -49,26 +49,26 @@ class RouteEngine:
     def _load_walking_transfers(self, conn) -> List[Segment]:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT s.id, s.source_id, loc1.name as source_name, 
-                   s.destination_id, loc2.name as destination_name, 
-                   s.mode, s.route_name, s.duration, s.cost, s.provider, s.schedule
-            FROM segments s
-            JOIN locations loc1 ON s.source_id = loc1.id
-            JOIN locations loc2 ON s.destination_id = loc2.id
-            WHERE s.mode = 'walk'
+            SELECT r.id, r.source_location_id, loc1.name as source_name, 
+                   r.destination_location_id, loc2.name as destination_name, 
+                   r.transport_mode, r.route_name, r.duration_minutes, r.cost, r.provider
+            FROM routes r
+            JOIN locations loc1 ON r.source_location_id = loc1.id
+            JOIN locations loc2 ON r.destination_location_id = loc2.id
+            WHERE r.transport_mode = 'walk'
         """)
         rows = cursor.fetchall()
         segments = []
         for r in rows:
             segments.append(Segment(
                 id=r["id"],
-                source_id=r["source_id"],
+                source_id=r["source_location_id"],
                 source_name=r["source_name"],
-                destination_id=r["destination_id"],
+                destination_id=r["destination_location_id"],
                 destination_name=r["destination_name"],
-                mode=r["mode"],
+                mode=r["transport_mode"],
                 route_name=r["route_name"],
-                duration=r["duration"],
+                duration=r["duration_minutes"],
                 cost=r["cost"],
                 provider=r["provider"] or "Walk",
                 schedule=[]

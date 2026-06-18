@@ -1,0 +1,21 @@
+[
+  {
+    "provider": "KMRL",
+    "route_name": "Kochi Metro Line 1",
+    "start_time": "06:00",
+    "end_time": "22:00",
+    "frequency_minutes": 10,
+    "connections": [
+      {"source": "Aluva Metro Station", "destination": "Kalamassery Metro Station", "duration": 8, "cost": 20.0, "distance_km": 7.2},
+      {"source": "Kalamassery Metro Station", "destination": "Pathadipalam Metro Station", "duration": 4, "cost": 10.0, "distance_km": 3.1},
+      {"source": "Pathadipalam Metro Station", "destination": "Edappally Metro Station", "duration": 3, "cost": 10.0, "distance_km": 2.0},
+      {"source": "Edappally Metro Station", "destination": "Palarivattom Metro Station", "duration": 3, "cost": 10.0, "distance_km": 2.2},
+      {"source": "Palarivattom Metro Station", "destination": "Kaloor Metro Station", "duration": 4, "cost": 10.0, "distance_km": 2.5},
+      {"source": "Kaloor Metro Station", "destination": "Town Hall Metro Station", "duration": 3, "cost": 10.0, "distance_km": 1.8},
+      {"source": "Town Hall Metro Station", "destination": "Ernakulam South Metro Station", "duration": 4, "cost": 10.0, "distance_km": 2.2},
+      {"source": "Ernakulam South Metro Station", "destination": "Elamkulam Metro Station", "duration": 3, "cost": 10.0, "distance_km": 2.0},
+      {"source": "Elamkulam Metro Station", "destination": "Vytila Metro Station", "duration": 4, "cost": 10.0, "distance_km": 2.4},
+      {"source": "Vytila Metro Station", "destination": "Tripunithura Metro Station", "duration": 6, "cost": 20.0, "distance_km": 4.8}
+    ]
+  }
+]
