@@ -1,0 +1,40 @@
+id,name,city,state,latitude,longitude,type
+25,Angamaly Bus Stand,Angamaly,Kerala,10.1975,76.387,bus_stop
+24,Angamaly Railway Station,Angamaly,Kerala,10.197,76.3862,railway_station
+39,Kannur Bus Stand,Kannur,Kerala,11.875,75.371,bus_stop
+38,Kannur Railway Station,Kannur,Kerala,11.8745,75.3704,railway_station
+3,Aluva Bus Stand,Kochi,Kerala,10.109,76.3558,bus_stop
+2,Aluva Metro Station,Kochi,Kerala,10.1095,76.357,metro_station
+1,Aluva Railway Station,Kochi,Kerala,10.1081,76.3563,railway_station
+8,Edappally Bus Stop,Kochi,Kerala,10.024,76.307,bus_stop
+7,Edappally Metro Station,Kochi,Kerala,10.0245,76.3078,metro_station
+18,Elamkulam Metro Station,Kochi,Kerala,9.9654,76.305,metro_station
+15,Ernakulam Junction Railway Station,Kochi,Kerala,9.9678,76.286,railway_station
+16,Ernakulam South Metro Station,Kochi,Kerala,9.9682,76.2875,metro_station
+12,Ernakulam Town Railway Station,Kochi,Kerala,9.9922,76.287,railway_station
+5,Kalamassery Bus Stop,Kochi,Kerala,10.0515,76.3205,bus_stop
+4,Kalamassery Metro Station,Kochi,Kerala,10.052,76.321,metro_station
+11,Kaloor Bus Stop,Kochi,Kerala,9.9908,76.29,bus_stop
+10,Kaloor Metro Station,Kochi,Kerala,9.9912,76.2905,metro_station
+14,North Bus Stop,Kochi,Kerala,9.991,76.2865,bus_stop
+9,Palarivattom Metro Station,Kochi,Kerala,10.0076,76.3005,metro_station
+6,Pathadipalam Metro Station,Kochi,Kerala,10.0385,76.313,metro_station
+17,South Bus Stop,Kochi,Kerala,9.967,76.2855,bus_stop
+13,Town Hall Metro Station,Kochi,Kerala,9.9918,76.2885,metro_station
+23,Tripunithura Bus Stand,Kochi,Kerala,9.9515,76.349,bus_stop
+22,Tripunithura Metro Station,Kochi,Kerala,9.9535,76.3512,metro_station
+21,Tripunithura Railway Station,Kochi,Kerala,9.952,76.35,railway_station
+19,Vytila Metro Station,Kochi,Kerala,9.969,76.32,metro_station
+20,Vytila Mobility Hub,Kochi,Kerala,9.9685,76.321,bus_stop
+35,Kollam Bus Stand,Kollam,Kerala,8.89,76.591,bus_stop
+34,Kollam Junction Railway Station,Kollam,Kerala,8.8872,76.596,railway_station
+37,Kottayam Bus Stand,Kottayam,Kerala,9.587,76.53,bus_stop
+36,Kottayam Railway Station,Kottayam,Kerala,9.5898,76.5388,railway_station
+31,Kozhikode Bus Stand,Kozhikode,Kerala,11.249,75.7875,bus_stop
+30,Kozhikode Railway Station,Kozhikode,Kerala,11.2483,75.7865,railway_station
+33,Palakkad Bus Stand,Palakkad,Kerala,10.783,76.655,bus_stop
+32,Palakkad Junction Railway Station,Palakkad,Kerala,10.7937,76.6432,railway_station
+27,Trivandrum Central Bus Station,Thiruvananthapuram,Kerala,8.488,76.952,bus_stop
+26,Trivandrum Central Railway Station,Thiruvananthapuram,Kerala,8.4875,76.9515,railway_station
+29,Thrissur Bus Stand,Thrissur,Kerala,10.521,76.215,bus_stop
+28,Thrissur Railway Station,Thrissur,Kerala,10.5186,76.2163,railway_station

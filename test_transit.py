@@ -61,6 +61,29 @@ class TestTransitAI(unittest.TestCase):
         self.assertTrue("Aluva" in first_seg["source_name"])
         self.assertTrue("Kaloor" in last_seg["destination_name"])
 
+    def test_kerala_routing_cases(self):
+        """Verify routing works for Thrissur->Ernakulam, Kottayam->Kollam, Kozhikode->Kannur"""
+        # Test Case 1: Thrissur to Ernakulam Town
+        res1 = self.route_engine.find_routes("Thrissur", "Ernakulam", "17:00")
+        self.assertNotIn("error", res1)
+        self.assertGreater(len(res1["fastest"]["segments"]), 0)
+        self.assertTrue(any("Thrissur" in s["source_name"] for s in res1["fastest"]["segments"]))
+        self.assertTrue(any("Ernakulam" in s["destination_name"] for s in res1["fastest"]["segments"]))
+
+        # Test Case 2: Kottayam to Kollam
+        res2 = self.route_engine.find_routes("Kottayam", "Kollam", "19:00")
+        self.assertNotIn("error", res2)
+        self.assertGreater(len(res2["fastest"]["segments"]), 0)
+        self.assertTrue(any("Kottayam" in s["source_name"] for s in res2["fastest"]["segments"]))
+        self.assertTrue(any("Kollam" in s["destination_name"] for s in res2["fastest"]["segments"]))
+
+        # Test Case 3: Kozhikode to Kannur
+        res3 = self.route_engine.find_routes("Kozhikode", "Kannur", "05:00")
+        self.assertNotIn("error", res3)
+        self.assertGreater(len(res3["fastest"]["segments"]), 0)
+        self.assertTrue(any("Kozhikode" in s["source_name"] for s in res3["fastest"]["segments"]))
+        self.assertTrue(any("Kannur" in s["destination_name"] for s in res3["fastest"]["segments"]))
+
     def test_nlp_parser(self):
         """Verify the natural language query parser extracts constraints correctly."""
         # Test Case 1: Complex search query

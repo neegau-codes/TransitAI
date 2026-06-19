@@ -4,12 +4,12 @@
     "train_name": "Venad Express",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "Trivandrum Central Railway Station", "arrival": "05:00", "departure": "05:15", "distance_km": 0, "cost": 0.0},
-      {"station": "Kollam Junction Railway Station", "arrival": "06:15", "departure": "06:18", "distance_km": 64, "cost": 45.0},
-      {"station": "Kottayam Railway Station", "arrival": "08:10", "departure": "08:13", "distance_km": 160, "cost": 75.0},
-      {"station": "Ernakulam Town Railway Station", "arrival": "09:15", "departure": "09:20", "distance_km": 220, "cost": 95.0},
-      {"station": "Aluva Railway Station", "arrival": "09:40", "departure": "09:42", "distance_km": 237, "cost": 105.0},
-      {"station": "Thrissur Railway Station", "arrival": "10:45", "departure": "10:48", "distance_km": 292, "cost": 120.0}
+      {"station": "Trivandrum Central Railway Station", "arrival": "05:00", "departure": "05:15", "distance_km": 0,   "cost": 0.0},
+      {"station": "Kollam Junction Railway Station",    "arrival": "06:15", "departure": "06:18", "distance_km": 64,  "cost": 45.0},
+      {"station": "Kottayam Railway Station",           "arrival": "08:10", "departure": "08:13", "distance_km": 160, "cost": 75.0},
+      {"station": "Ernakulam Town Railway Station",     "arrival": "09:15", "departure": "09:20", "distance_km": 220, "cost": 95.0},
+      {"station": "Aluva Railway Station",              "arrival": "09:40", "departure": "09:42", "distance_km": 237, "cost": 105.0},
+      {"station": "Thrissur Railway Station",           "arrival": "10:45", "departure": "10:48", "distance_km": 292, "cost": 120.0}
     ]
   },
   {
@@ -17,11 +17,11 @@
     "train_name": "Venad Express (Return)",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "Thrissur Railway Station", "arrival": "17:00", "departure": "17:15", "distance_km": 0, "cost": 0.0},
-      {"station": "Aluva Railway Station", "arrival": "18:10", "departure": "18:12", "distance_km": 55, "cost": 45.0},
-      {"station": "Ernakulam Town Railway Station", "arrival": "18:35", "departure": "18:40", "distance_km": 72, "cost": 55.0},
-      {"station": "Kottayam Railway Station", "arrival": "19:45", "departure": "19:48", "distance_km": 132, "cost": 75.0},
-      {"station": "Kollam Junction Railway Station", "arrival": "21:30", "departure": "21:33", "distance_km": 228, "cost": 105.0},
+      {"station": "Thrissur Railway Station",           "arrival": "17:00", "departure": "17:15", "distance_km": 0,   "cost": 0.0},
+      {"station": "Aluva Railway Station",              "arrival": "18:10", "departure": "18:12", "distance_km": 55,  "cost": 45.0},
+      {"station": "Ernakulam Town Railway Station",     "arrival": "18:35", "departure": "18:40", "distance_km": 72,  "cost": 55.0},
+      {"station": "Kottayam Railway Station",           "arrival": "19:45", "departure": "19:48", "distance_km": 132, "cost": 75.0},
+      {"station": "Kollam Junction Railway Station",    "arrival": "21:30", "departure": "21:33", "distance_km": 228, "cost": 105.0},
       {"station": "Trivandrum Central Railway Station", "arrival": "22:45", "departure": "23:00", "distance_km": 292, "cost": 120.0}
     ]
   },
@@ -30,15 +30,16 @@
     "train_name": "Parasuram Express",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "Trivandrum Central Railway Station", "arrival": "04:00", "departure": "04:10", "distance_km": 0, "cost": 0.0},
-      {"station": "Kollam Junction Railway Station", "arrival": "05:08", "departure": "05:10", "distance_km": 64, "cost": 45.0},
-      {"station": "Kottayam Railway Station", "arrival": "07:05", "departure": "07:08", "distance_km": 160, "cost": 75.0},
-      {"station": "Ernakulam Junction Railway Station", "arrival": "08:10", "departure": "08:15", "distance_km": 220, "cost": 95.0},
-      {"station": "Aluva Railway Station", "arrival": "08:40", "departure": "08:42", "distance_km": 237, "cost": 105.0},
-      {"station": "Thrissur Railway Station", "arrival": "09:40", "departure": "09:43", "distance_km": 292, "cost": 120.0},
-      {"station": "Palakkad Junction Railway Station", "arrival": "11:15", "departure": "11:20", "distance_km": 367, "cost": 150.0},
-      {"station": "Kozhikode Railway Station", "arrival": "13:40", "departure": "13:45", "distance_km": 472, "cost": 190.0},
-      {"station": "Mangaluru Central Railway Station", "arrival": "18:30", "departure": "18:45", "distance_km": 693, "cost": 250.0}
+      {"station": "Trivandrum Central Railway Station",  "arrival": "04:00", "departure": "04:10", "distance_km": 0,   "cost": 0.0},
+      {"station": "Kollam Junction Railway Station",     "arrival": "05:08", "departure": "05:10", "distance_km": 64,  "cost": 45.0},
+      {"station": "Kottayam Railway Station",            "arrival": "07:05", "departure": "07:08", "distance_km": 160, "cost": 75.0},
+      {"station": "Ernakulam Junction Railway Station",  "arrival": "08:10", "departure": "08:15", "distance_km": 220, "cost": 95.0},
+      {"station": "Aluva Railway Station",               "arrival": "08:40", "departure": "08:42", "distance_km": 237, "cost": 105.0},
+      {"station": "Angamaly Railway Station",            "arrival": "08:58", "departure": "09:00", "distance_km": 248, "cost": 110.0},
+      {"station": "Thrissur Railway Station",            "arrival": "09:40", "departure": "09:43", "distance_km": 292, "cost": 120.0},
+      {"station": "Palakkad Junction Railway Station",   "arrival": "11:15", "departure": "11:20", "distance_km": 367, "cost": 150.0},
+      {"station": "Kozhikode Railway Station",           "arrival": "13:40", "departure": "13:45", "distance_km": 472, "cost": 190.0},
+      {"station": "Kannur Railway Station",              "arrival": "15:10", "departure": "15:15", "distance_km": 537, "cost": 215.0}
     ]
   },
   {
@@ -46,159 +47,72 @@
     "train_name": "Parasuram Express (Return)",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "Mangaluru Central Railway Station", "arrival": "07:00", "departure": "07:15", "distance_km": 0, "cost": 0.0},
-      {"station": "Kozhikode Railway Station", "arrival": "11:05", "departure": "11:10", "distance_km": 221, "cost": 110.0},
-      {"station": "Palakkad Junction Railway Station", "arrival": "13:25", "departure": "13:30", "distance_km": 326, "cost": 140.0},
-      {"station": "Thrissur Railway Station", "arrival": "14:50", "departure": "14:53", "distance_km": 401, "cost": 170.0},
-      {"station": "Aluva Railway Station", "arrival": "15:48", "departure": "15:50", "distance_km": 456, "cost": 190.0},
-      {"station": "Ernakulam Junction Railway Station", "arrival": "16:25", "departure": "16:30", "distance_km": 473, "cost": 200.0},
-      {"station": "Kottayam Railway Station", "arrival": "17:35", "departure": "17:38", "distance_km": 533, "cost": 220.0},
-      {"station": "Kollam Junction Railway Station", "arrival": "19:35", "departure": "19:38", "distance_km": 629, "cost": 240.0},
-      {"station": "Trivandrum Central Railway Station", "arrival": "20:55", "departure": "21:10", "distance_km": 693, "cost": 250.0}
+      {"station": "Kannur Railway Station",              "arrival": "07:00", "departure": "07:15", "distance_km": 0,   "cost": 0.0},
+      {"station": "Kozhikode Railway Station",           "arrival": "08:35", "departure": "08:40", "distance_km": 65,  "cost": 55.0},
+      {"station": "Palakkad Junction Railway Station",   "arrival": "11:00", "departure": "11:05", "distance_km": 170, "cost": 95.0},
+      {"station": "Thrissur Railway Station",            "arrival": "12:30", "departure": "12:33", "distance_km": 245, "cost": 120.0},
+      {"station": "Angamaly Railway Station",            "arrival": "13:05", "departure": "13:07", "distance_km": 277, "cost": 130.0},
+      {"station": "Aluva Railway Station",               "arrival": "13:20", "departure": "13:22", "distance_km": 289, "cost": 135.0},
+      {"station": "Ernakulam Junction Railway Station",  "arrival": "14:00", "departure": "14:05", "distance_km": 306, "cost": 140.0},
+      {"station": "Kottayam Railway Station",            "arrival": "15:10", "departure": "15:13", "distance_km": 366, "cost": 160.0},
+      {"station": "Kollam Junction Railway Station",     "arrival": "17:05", "departure": "17:08", "distance_km": 462, "cost": 185.0},
+      {"station": "Trivandrum Central Railway Station",  "arrival": "18:30", "departure": "18:45", "distance_km": 537, "cost": 215.0}
     ]
   },
   {
-    "train_number": "12007",
-    "train_name": "Chennai-Bengaluru Shatabdi",
+    "train_number": "12076",
+    "train_name": "Jan Shatabdi Express (Ernakulam-Kozhikode)",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "Chennai Central Railway Station", "arrival": "06:00", "departure": "06:00", "distance_km": 0, "cost": 0.0},
-      {"station": "Salem Junction Railway Station", "arrival": "09:15", "departure": "09:17", "distance_km": 334, "cost": 450.0},
-      {"station": "KSR Bengaluru Railway Station", "arrival": "11:00", "departure": "11:15", "distance_km": 362, "cost": 520.0}
+      {"station": "Ernakulam Junction Railway Station", "arrival": "05:40", "departure": "05:40", "distance_km": 0,   "cost": 0.0},
+      {"station": "Aluva Railway Station",              "arrival": "06:05", "departure": "06:07", "distance_km": 19,  "cost": 40.0},
+      {"station": "Angamaly Railway Station",           "arrival": "06:20", "departure": "06:22", "distance_km": 29,  "cost": 50.0},
+      {"station": "Thrissur Railway Station",           "arrival": "07:05", "departure": "07:08", "distance_km": 74,  "cost": 70.0},
+      {"station": "Palakkad Junction Railway Station",  "arrival": "08:35", "departure": "08:40", "distance_km": 149, "cost": 110.0},
+      {"station": "Kozhikode Railway Station",          "arrival": "11:00", "departure": "11:05", "distance_km": 254, "cost": 160.0},
+      {"station": "Kannur Railway Station",             "arrival": "12:25", "departure": "12:30", "distance_km": 319, "cost": 185.0}
     ]
   },
   {
-    "train_number": "12008",
-    "train_name": "Bengaluru-Chennai Shatabdi",
+    "train_number": "12075",
+    "train_name": "Jan Shatabdi Express (Kozhikode-Ernakulam)",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "KSR Bengaluru Railway Station", "arrival": "16:20", "departure": "16:20", "distance_km": 0, "cost": 0.0},
-      {"station": "Salem Junction Railway Station", "arrival": "18:00", "departure": "18:02", "distance_km": 28, "cost": 120.0},
-      {"station": "Chennai Central Railway Station", "arrival": "21:25", "departure": "21:30", "distance_km": 362, "cost": 520.0}
+      {"station": "Kannur Railway Station",             "arrival": "14:00", "departure": "14:00", "distance_km": 0,   "cost": 0.0},
+      {"station": "Kozhikode Railway Station",          "arrival": "15:20", "departure": "15:25", "distance_km": 65,  "cost": 55.0},
+      {"station": "Palakkad Junction Railway Station",  "arrival": "17:45", "departure": "17:50", "distance_km": 170, "cost": 100.0},
+      {"station": "Thrissur Railway Station",           "arrival": "19:10", "departure": "19:13", "distance_km": 245, "cost": 130.0},
+      {"station": "Angamaly Railway Station",           "arrival": "19:45", "departure": "19:47", "distance_km": 277, "cost": 140.0},
+      {"station": "Aluva Railway Station",              "arrival": "20:00", "departure": "20:02", "distance_km": 289, "cost": 145.0},
+      {"station": "Ernakulam Junction Railway Station", "arrival": "20:35", "departure": "20:40", "distance_km": 306, "cost": 160.0}
     ]
   },
   {
-    "train_number": "16231",
-    "train_name": "Bengaluru-Mysuru Express",
+    "train_number": "16381",
+    "train_name": "Kanyakumari Express (Trivandrum-Kozhikode)",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "KSR Bengaluru Railway Station", "arrival": "05:45", "departure": "06:00", "distance_km": 0, "cost": 0.0},
-      {"station": "Mysuru Junction Railway Station", "arrival": "08:00", "departure": "08:15", "distance_km": 138, "cost": 65.0}
+      {"station": "Trivandrum Central Railway Station", "arrival": "10:45", "departure": "10:45", "distance_km": 0,   "cost": 0.0},
+      {"station": "Kollam Junction Railway Station",    "arrival": "11:45", "departure": "11:48", "distance_km": 64,  "cost": 45.0},
+      {"station": "Kottayam Railway Station",           "arrival": "13:30", "departure": "13:33", "distance_km": 160, "cost": 75.0},
+      {"station": "Ernakulam Junction Railway Station", "arrival": "14:40", "departure": "14:45", "distance_km": 220, "cost": 95.0},
+      {"station": "Thrissur Railway Station",           "arrival": "16:10", "departure": "16:13", "distance_km": 292, "cost": 120.0},
+      {"station": "Kozhikode Railway Station",          "arrival": "18:45", "departure": "18:50", "distance_km": 397, "cost": 170.0},
+      {"station": "Kannur Railway Station",             "arrival": "20:05", "departure": "20:10", "distance_km": 462, "cost": 195.0}
     ]
   },
   {
-    "train_number": "16232",
-    "train_name": "Mysuru-Bengaluru Express",
+    "train_number": "16382",
+    "train_name": "Kanyakumari Express (Kozhikode-Trivandrum)",
     "provider": "Indian Railways",
     "stops": [
-      {"station": "Mysuru Junction Railway Station", "arrival": "18:30", "departure": "18:45", "distance_km": 0, "cost": 0.0},
-      {"station": "KSR Bengaluru Railway Station", "arrival": "20:45", "departure": "21:00", "distance_km": 138, "cost": 65.0}
-    ]
-  },
-  {
-    "train_number": "12675",
-    "train_name": "Kovai Express",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Chennai Central Railway Station", "arrival": "06:10", "departure": "06:10", "distance_km": 0, "cost": 0.0},
-      {"station": "Villupuram Junction Railway Station", "arrival": "08:15", "departure": "08:18", "distance_km": 159, "cost": 90.0},
-      {"station": "Salem Junction Railway Station", "arrival": "10:32", "departure": "10:35", "distance_km": 334, "cost": 150.0},
-      {"station": "Coimbatore Junction Railway Station", "arrival": "12:50", "departure": "13:00", "distance_km": 494, "cost": 210.0}
-    ]
-  },
-  {
-    "train_number": "12676",
-    "train_name": "Kovai Express (Return)",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Coimbatore Junction Railway Station", "arrival": "15:15", "departure": "15:15", "distance_km": 0, "cost": 0.0},
-      {"station": "Salem Junction Railway Station", "arrival": "17:18", "departure": "17:20", "distance_km": 160, "cost": 90.0},
-      {"station": "Villupuram Junction Railway Station", "arrival": "19:40", "departure": "19:42", "distance_km": 335, "cost": 160.0},
-      {"station": "Chennai Central Railway Station", "arrival": "22:00", "departure": "22:15", "distance_km": 494, "cost": 210.0}
-    ]
-  },
-  {
-    "train_number": "12635",
-    "train_name": "Vaigai Express",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Chennai Egmore Railway Station", "arrival": "13:50", "departure": "13:50", "distance_km": 0, "cost": 0.0},
-      {"station": "Villupuram Junction Railway Station", "arrival": "16:00", "departure": "16:02", "distance_km": 159, "cost": 90.0},
-      {"station": "Tiruchirappalli Junction Railway Station", "arrival": "18:40", "departure": "18:45", "distance_km": 337, "cost": 160.0},
-      {"station": "Madurai Junction Railway Station", "arrival": "21:15", "departure": "21:30", "distance_km": 493, "cost": 210.0}
-    ]
-  },
-  {
-    "train_number": "12636",
-    "train_name": "Vaigai Express (Return)",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Madurai Junction Railway Station", "arrival": "06:40", "departure": "06:40", "distance_km": 0, "cost": 0.0},
-      {"station": "Tiruchirappalli Junction Railway Station", "arrival": "09:00", "departure": "09:05", "distance_km": 156, "cost": 90.0},
-      {"station": "Villupuram Junction Railway Station", "arrival": "11:40", "departure": "11:42", "distance_km": 334, "cost": 160.0},
-      {"station": "Chennai Egmore Railway Station", "arrival": "14:10", "departure": "14:25", "distance_km": 493, "cost": 210.0}
-    ]
-  },
-  {
-    "train_number": "12785",
-    "train_name": "Hyderabad-Bengaluru Express",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Secunderabad Junction Railway Station", "arrival": "19:00", "departure": "19:15", "distance_km": 0, "cost": 0.0},
-      {"station": "Hyderabad Deccan Railway Station", "arrival": "19:35", "departure": "19:50", "distance_km": 10, "cost": 15.0},
-      {"station": "Tirupati Railway Station", "arrival": "04:30", "departure": "04:45", "distance_km": 500, "cost": 310.0},
-      {"station": "KSR Bengaluru Railway Station", "arrival": "10:15", "departure": "10:30", "distance_km": 820, "cost": 450.0}
-    ]
-  },
-  {
-    "train_number": "12786",
-    "train_name": "Bengaluru-Hyderabad Express",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "KSR Bengaluru Railway Station", "arrival": "18:20", "departure": "18:20", "distance_km": 0, "cost": 0.0},
-      {"station": "Tirupati Railway Station", "arrival": "23:50", "departure": "00:05", "distance_km": 320, "cost": 220.0},
-      {"station": "Hyderabad Deccan Railway Station", "arrival": "08:15", "departure": "08:30", "distance_km": 810, "cost": 440.0},
-      {"station": "Secunderabad Junction Railway Station", "arrival": "09:00", "departure": "09:15", "distance_km": 820, "cost": 450.0}
-    ]
-  },
-  {
-    "train_number": "12806",
-    "train_name": "Janmabhoomi Express",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Secunderabad Junction Railway Station", "arrival": "06:15", "departure": "06:15", "distance_km": 0, "cost": 0.0},
-      {"station": "Vijayawada Junction Railway Station", "arrival": "11:30", "departure": "11:40", "distance_km": 313, "cost": 145.0},
-      {"station": "Visakhapatnam Junction Railway Station", "arrival": "18:30", "departure": "18:45", "distance_km": 663, "cost": 250.0}
-    ]
-  },
-  {
-    "train_number": "12805",
-    "train_name": "Janmabhoomi Express (Return)",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Visakhapatnam Junction Railway Station", "arrival": "06:20", "departure": "06:20", "distance_km": 0, "cost": 0.0},
-      {"station": "Vijayawada Junction Railway Station", "arrival": "12:45", "departure": "12:55", "distance_km": 350, "cost": 160.0},
-      {"station": "Secunderabad Junction Railway Station", "arrival": "18:45", "departure": "19:00", "distance_km": 663, "cost": 250.0}
-    ]
-  },
-  {
-    "train_number": "16115",
-    "train_name": "Chennai-Puducherry Express",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Chennai Egmore Railway Station", "arrival": "18:10", "departure": "18:10", "distance_km": 0, "cost": 0.0},
-      {"station": "Villupuram Junction Railway Station", "arrival": "20:50", "departure": "21:00", "distance_km": 159, "cost": 90.0},
-      {"station": "Puducherry Railway Station", "arrival": "22:15", "departure": "22:30", "distance_km": 197, "cost": 110.0}
-    ]
-  },
-  {
-    "train_number": "16116",
-    "train_name": "Puducherry-Chennai Express",
-    "provider": "Indian Railways",
-    "stops": [
-      {"station": "Puducherry Railway Station", "arrival": "05:35", "departure": "05:35", "distance_km": 0, "cost": 0.0},
-      {"station": "Villupuram Junction Railway Station", "arrival": "06:40", "departure": "06:50", "distance_km": 38, "cost": 45.0},
-      {"station": "Chennai Egmore Railway Station", "arrival": "09:30", "departure": "09:45", "distance_km": 197, "cost": 110.0}
+      {"station": "Kannur Railway Station",             "arrival": "07:30", "departure": "07:30", "distance_km": 0,   "cost": 0.0},
+      {"station": "Kozhikode Railway Station",          "arrival": "08:50", "departure": "08:55", "distance_km": 65,  "cost": 55.0},
+      {"station": "Thrissur Railway Station",           "arrival": "11:20", "departure": "11:23", "distance_km": 170, "cost": 100.0},
+      {"station": "Ernakulam Junction Railway Station", "arrival": "12:50", "departure": "12:55", "distance_km": 242, "cost": 120.0},
+      {"station": "Kottayam Railway Station",           "arrival": "14:00", "departure": "14:03", "distance_km": 302, "cost": 140.0},
+      {"station": "Kollam Junction Railway Station",    "arrival": "15:50", "departure": "15:53", "distance_km": 398, "cost": 165.0},
+      {"station": "Trivandrum Central Railway Station", "arrival": "17:00", "departure": "17:15", "distance_km": 462, "cost": 195.0}
     ]
   }
 ]

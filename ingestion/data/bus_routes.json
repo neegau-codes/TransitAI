@@ -80,143 +80,123 @@
     "schedules": ["06:45", "08:15", "09:45", "11:15", "12:45", "14:15", "15:45", "17:15", "18:45", "20:15"]
   },
   {
-    "route_name": "PRTC Chennai-Puducherry ECR Express",
-    "provider": "PRTC",
-    "source": "Chennai Mofussil Bus Terminus",
-    "destination": "Puducherry Bus Stand",
-    "duration_minutes": 180,
-    "cost": 160.0,
-    "distance_km": 150.0,
-    "schedules": ["05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]
-  },
-  {
-    "route_name": "PRTC Puducherry-Chennai ECR Express",
-    "provider": "PRTC",
-    "source": "Puducherry Bus Stand",
-    "destination": "Chennai Mofussil Bus Terminus",
-    "duration_minutes": 180,
-    "cost": 160.0,
-    "distance_km": 150.0,
-    "schedules": ["05:30", "06:30", "07:30", "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30"]
-  },
-  {
-    "route_name": "KSRTC-KA Bengaluru-Chennai Airavat",
-    "provider": "KSRTC-KA",
-    "source": "Kempegowda Bus Station",
-    "destination": "Chennai Mofussil Bus Terminus",
-    "duration_minutes": 360,
-    "cost": 450.0,
-    "distance_km": 350.0,
-    "schedules": ["06:00", "08:30", "11:00", "14:00", "21:00", "22:30"]
-  },
-  {
-    "route_name": "SETC Chennai-Bengaluru Ultra Deluxe",
-    "provider": "SETC",
-    "source": "Chennai Mofussil Bus Terminus",
-    "destination": "Kempegowda Bus Station",
-    "duration_minutes": 360,
-    "cost": 450.0,
-    "distance_km": 350.0,
-    "schedules": ["07:00", "09:30", "12:00", "15:00", "21:30", "23:00"]
-  },
-  {
-    "route_name": "KSRTC-KA Bengaluru-Mysuru Flybus",
-    "provider": "KSRTC-KA",
-    "source": "Kempegowda Bus Station",
-    "destination": "Mysuru Bus Stand",
-    "duration_minutes": 180,
-    "cost": 150.0,
-    "distance_km": 140.0,
-    "schedules": ["05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
-  },
-  {
-    "route_name": "KSRTC-KA Mysuru-Bengaluru Flybus",
-    "provider": "KSRTC-KA",
-    "source": "Mysuru Bus Stand",
-    "destination": "Kempegowda Bus Station",
-    "duration_minutes": 180,
-    "cost": 150.0,
-    "distance_km": 140.0,
-    "schedules": ["05:30", "06:30", "07:30", "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30", "21:30", "22:30"]
-  },
-  {
-    "route_name": "KSRTC-KA Bengaluru-Mangaluru Sleeper",
-    "provider": "KSRTC-KA",
-    "source": "Kempegowda Bus Station",
-    "destination": "Mangaluru Bus Stand",
-    "duration_minutes": 420,
-    "cost": 450.0,
-    "distance_km": 350.0,
-    "schedules": ["08:00", "10:30", "13:00", "21:30", "22:30"]
-  },
-  {
-    "route_name": "KSRTC-KA Mangaluru-Bengaluru Sleeper",
-    "provider": "KSRTC-KA",
-    "source": "Mangaluru Bus Stand",
-    "destination": "Kempegowda Bus Station",
-    "duration_minutes": 420,
-    "cost": 450.0,
-    "distance_km": 350.0,
-    "schedules": ["08:30", "11:00", "13:30", "21:00", "22:00"]
-  },
-  {
-    "route_name": "TSRTC Hyderabad-Vijayawada Rajadhani",
-    "provider": "TSRTC",
-    "source": "Mahatma Gandhi Bus Station",
-    "destination": "Pandit Nehru Bus Station",
-    "duration_minutes": 270,
-    "cost": 350.0,
-    "distance_km": 275.0,
-    "schedules": ["04:00", "06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00"]
-  },
-  {
-    "route_name": "APSRTC Vijayawada-Hyderabad Amaravati",
-    "provider": "APSRTC",
-    "source": "Pandit Nehru Bus Station",
-    "destination": "Mahatma Gandhi Bus Station",
-    "duration_minutes": 270,
-    "cost": 350.0,
-    "distance_km": 275.0,
-    "schedules": ["04:30", "06:30", "08:30", "10:30", "12:30", "14:30", "16:30", "18:30", "20:30", "22:30"]
-  },
-  {
-    "route_name": "APSRTC Vijayawada-Visakhapatnam Express",
-    "provider": "APSRTC",
-    "source": "Pandit Nehru Bus Station",
-    "destination": "Dwaraka Bus Station",
-    "duration_minutes": 420,
-    "cost": 450.0,
-    "distance_km": 350.0,
-    "schedules": ["06:00", "09:00", "12:00", "15:00", "21:00", "22:00"]
-  },
-  {
-    "route_name": "APSRTC Visakhapatnam-Vijayawada Express",
-    "provider": "APSRTC",
-    "source": "Dwaraka Bus Station",
-    "destination": "Pandit Nehru Bus Station",
-    "duration_minutes": 420,
-    "cost": 450.0,
-    "distance_km": 350.0,
-    "schedules": ["06:30", "09:30", "12:30", "15:30", "21:30", "22:30"]
-  },
-  {
-    "route_name": "SETC Coimbatore-Salem Express",
-    "provider": "SETC",
-    "source": "Gandhipuram Bus Stand",
-    "destination": "Salem Bus Stand",
+    "route_name": "KSRTC Kochi-Kollam Express",
+    "provider": "KSRTC",
+    "source": "Vytila Mobility Hub",
+    "destination": "Kollam Bus Stand",
     "duration_minutes": 150,
-    "cost": 140.0,
-    "distance_km": 160.0,
+    "cost": 160.0,
+    "distance_km": 108.0,
     "schedules": ["06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
   },
   {
-    "route_name": "SETC Salem-Coimbatore Express",
-    "provider": "SETC",
-    "source": "Salem Bus Stand",
-    "destination": "Gandhipuram Bus Stand",
+    "route_name": "KSRTC Kollam-Kochi Express",
+    "provider": "KSRTC",
+    "source": "Kollam Bus Stand",
+    "destination": "Vytila Mobility Hub",
     "duration_minutes": 150,
-    "cost": 140.0,
-    "distance_km": 160.0,
-    "schedules": ["06:30", "08:30", "10:30", "12:30", "14:30", "16:30", "18:30", "20:30"]
+    "cost": 160.0,
+    "distance_km": 108.0,
+    "schedules": ["05:30", "07:30", "09:30", "11:30", "13:30", "15:30", "17:30", "19:30"]
+  },
+  {
+    "route_name": "KSRTC Kollam-Trivandrum Ordinary",
+    "provider": "KSRTC",
+    "source": "Kollam Bus Stand",
+    "destination": "Trivandrum Central Bus Station",
+    "duration_minutes": 75,
+    "cost": 80.0,
+    "distance_km": 68.0,
+    "schedules": ["05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"]
+  },
+  {
+    "route_name": "KSRTC Trivandrum-Kollam Ordinary",
+    "provider": "KSRTC",
+    "source": "Trivandrum Central Bus Station",
+    "destination": "Kollam Bus Stand",
+    "duration_minutes": 75,
+    "cost": 80.0,
+    "distance_km": 68.0,
+    "schedules": ["05:30", "06:30", "07:30", "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30", "21:30"]
+  },
+  {
+    "route_name": "KSRTC Thrissur-Palakkad Ordinary",
+    "provider": "KSRTC",
+    "source": "Thrissur Bus Stand",
+    "destination": "Palakkad Bus Stand",
+    "duration_minutes": 90,
+    "cost": 85.0,
+    "distance_km": 55.0,
+    "schedules": ["06:00", "07:30", "09:00", "10:30", "12:00", "13:30", "15:00", "16:30", "18:00", "19:30"]
+  },
+  {
+    "route_name": "KSRTC Palakkad-Thrissur Ordinary",
+    "provider": "KSRTC",
+    "source": "Palakkad Bus Stand",
+    "destination": "Thrissur Bus Stand",
+    "duration_minutes": 90,
+    "cost": 85.0,
+    "distance_km": 55.0,
+    "schedules": ["05:30", "07:00", "08:30", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00"]
+  },
+  {
+    "route_name": "KSRTC Kozhikode-Kannur Ordinary",
+    "provider": "KSRTC",
+    "source": "Kozhikode Bus Stand",
+    "destination": "Kannur Bus Stand",
+    "duration_minutes": 90,
+    "cost": 90.0,
+    "distance_km": 92.0,
+    "schedules": ["05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]
+  },
+  {
+    "route_name": "KSRTC Kannur-Kozhikode Ordinary",
+    "provider": "KSRTC",
+    "source": "Kannur Bus Stand",
+    "destination": "Kozhikode Bus Stand",
+    "duration_minutes": 90,
+    "cost": 90.0,
+    "distance_km": 92.0,
+    "schedules": ["05:30", "06:30", "07:30", "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30"]
+  },
+  {
+    "route_name": "KSRTC Kochi-Palakkad Super Fast",
+    "provider": "KSRTC",
+    "source": "Vytila Mobility Hub",
+    "destination": "Palakkad Bus Stand",
+    "duration_minutes": 180,
+    "cost": 195.0,
+    "distance_km": 150.0,
+    "schedules": ["06:00", "09:00", "12:00", "15:00", "18:00"]
+  },
+  {
+    "route_name": "KSRTC Palakkad-Kochi Super Fast",
+    "provider": "KSRTC",
+    "source": "Palakkad Bus Stand",
+    "destination": "Vytila Mobility Hub",
+    "duration_minutes": 180,
+    "cost": 195.0,
+    "distance_km": 150.0,
+    "schedules": ["05:30", "08:30", "11:30", "14:30", "17:30"]
+  },
+  {
+    "route_name": "KSRTC Angamaly-Kochi Ordinary",
+    "provider": "KSRTC",
+    "source": "Angamaly Bus Stand",
+    "destination": "Aluva Bus Stand",
+    "duration_minutes": 30,
+    "cost": 35.0,
+    "distance_km": 18.0,
+    "schedules": ["05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]
+  },
+  {
+    "route_name": "KSRTC Aluva-Angamaly Ordinary",
+    "provider": "KSRTC",
+    "source": "Aluva Bus Stand",
+    "destination": "Angamaly Bus Stand",
+    "duration_minutes": 30,
+    "cost": 35.0,
+    "distance_km": 18.0,
+    "schedules": ["06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30"]
   }
 ]

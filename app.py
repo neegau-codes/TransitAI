@@ -3,12 +3,14 @@ import datetime
 from database.db import get_db_connection
 from route_engine import RouteEngine
 from nlp_parser import NLPParser
+from recommendation_engine import RecommendationEngine
 
 app = Flask(__name__)
 
-# Initialize engine and parser
+# Initialize engine, parser, and recommendation engine
 route_engine = RouteEngine()
 nlp_parser = NLPParser()
+rec_engine = RecommendationEngine()
 
 @app.route('/')
 def index():
@@ -45,7 +47,16 @@ def search_routes():
         
     try:
         results = route_engine.find_routes(source, destination, departure_time)
-        return jsonify(results)
+        if "error" in results:
+            return jsonify(results), 400
+            
+        recommendations = rec_engine.generate_recommendations(results)
+        
+        response_data = {
+            **results,
+            "recommendations": recommendations
+        }
+        return jsonify(response_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -59,14 +70,20 @@ def ai_search():
         return jsonify({"error": "Query is required."}), 400
         
     try:
-        # 1. Parse natural language using NLPParser
+        # 1. Parse natural language using NLPParser (wraps AIQueryParser)
         parsed_params = nlp_parser.parse_query(query)
         
         source = parsed_params.get("source")
         destination = parsed_params.get("destination")
         dep_time = parsed_params.get("departure_time")
-        budget = parsed_params.get("budget")
-        preference = parsed_params.get("preference")
+        budget = parsed_params.get("budget_limit")
+        deadline = parsed_params.get("arrival_deadline")
+        
+        # If deadline is equal to dep_time, it means the single time in the query was
+        # an arrival deadline. So we want to depart *now* (current time) to meet that deadline.
+        search_dep_time = dep_time
+        if deadline and dep_time == deadline:
+            search_dep_time = datetime.datetime.now().strftime("%H:%M")
         
         # 2. Check if we extracted source and destination successfully
         if not source or not destination:
@@ -75,15 +92,26 @@ def ai_search():
                 "error": "Could not identify both start and end locations from your query. Please be more specific (e.g., 'from Aluva to Kaloor')."
             }), 200 # Return 200 with error details so frontend can show helpful correction advice
             
-        # 3. Perform route search
-        routes = route_engine.find_routes(source, destination, dep_time)
+        # 3. Build constraints dictionary
+        constraints = {
+            "budget_limit": budget,
+            "arrival_deadline": deadline,
+            "excluded_modes": parsed_params.get("additional_constraints", {}).get("excluded_modes", [])
+        }
         
-        # 4. Filter routes by budget if budget constraint is present
-        # If the cheapest route exceeds budget, we mark the routes, or warn the user.
-        # We return the routes along with parsing details.
+        # 4. Perform route search using constraints
+        routes = route_engine.find_routes(source, destination, search_dep_time, constraints=constraints)
+        
+        # 5. Generate recommendations if search succeeded
+        if "error" not in routes:
+            recommendations = rec_engine.generate_recommendations(routes)
+        else:
+            recommendations = []
+            
         return jsonify({
             "parsed_params": parsed_params,
-            "routes": routes
+            "routes": routes,
+            "recommendations": recommendations
         })
         
     except Exception as e:

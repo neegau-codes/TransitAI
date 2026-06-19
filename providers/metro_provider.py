@@ -3,7 +3,7 @@ from typing import List
 from providers.base_provider import TransportProvider
 from models.transport import Segment
 
-# Note: In a real-world system, this provider would fetch from Kochi Metro (KMRL), Chennai Metro, etc.
+# Note: In a real-world system, this provider would fetch from Kochi Metro (KMRL).
 # For this MVP, it queries the SQLite database to mock API data.
 
 class MetroProvider(TransportProvider):
