@@ -8,9 +8,9 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Locations | 39 |
+| Total Locations | 40 |
 | States Covered  | 1 |
-| Cities Covered  | 9 |
+| Cities Covered  | 10 |
 | Duplicate Records Found | 0 |
 | Records with Missing Coordinates | 0 |
 
@@ -20,7 +20,7 @@
 
 | State | Count |
 |-------|-------|
-| Kerala | 39 |
+| Kerala | 40 |
 
 ---
 
@@ -35,6 +35,7 @@
 | Kottayam | Kerala | 2 |
 | Kozhikode | Kerala | 2 |
 | Palakkad | Kerala | 2 |
+| Shoranur | Kerala | 1 |
 | Thiruvananthapuram | Kerala | 2 |
 | Thrissur | Kerala | 2 |
 

@@ -45,5 +45,6 @@
   {"name": "Kottayam Bus Stand",                 "city": "Kottayam",           "state": "Kerala", "latitude": 9.5870,  "longitude": 76.5300, "type": "bus_stop"},
 
   {"name": "Kannur Railway Station",             "city": "Kannur",             "state": "Kerala", "latitude": 11.8745, "longitude": 75.3704, "type": "railway_station"},
-  {"name": "Kannur Bus Stand",                   "city": "Kannur",             "state": "Kerala", "latitude": 11.8750, "longitude": 75.3710, "type": "bus_stop"}
+  {"name": "Kannur Bus Stand",                   "city": "Kannur",             "state": "Kerala", "latitude": 11.8750, "longitude": 75.3710, "type": "bus_stop"},
+  {"name": "Shoranur Junction Railway Station",  "city": "Shoranur",           "state": "Kerala", "latitude": 10.7588, "longitude": 76.272,  "type": "railway_station"}
 ]

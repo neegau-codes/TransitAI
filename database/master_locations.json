@@ -1,5 +1,5 @@
 {
-  "total": 39,
+  "total": 40,
   "locations": [
     {
       "id": 25,
@@ -314,6 +314,15 @@
       "state": "Kerala",
       "latitude": 10.7937,
       "longitude": 76.6432,
+      "type": "railway_station"
+    },
+    {
+      "id": 40,
+      "name": "Shoranur Junction Railway Station",
+      "city": "Shoranur",
+      "state": "Kerala",
+      "latitude": 10.7588,
+      "longitude": 76.272,
       "type": "railway_station"
     },
     {

@@ -33,7 +33,7 @@ class AIQueryParser:
                 "Aluva", "Kalamassery", "Edappally", "Kaloor", "Ernakulam", 
                 "Vytila", "Tripunithura", "Kochi", "Thrissur", "Palakkad", 
                 "Kozhikode", "Kannur", "Kottayam", "Kollam", "Thiruvananthapuram", 
-                "Angamaly", "Guruvayur"
+                "Angamaly", "Guruvayur", "Shoranur", "SRR"
             ]
 
     def parse_query(self, query: str) -> Dict[str, Any]:

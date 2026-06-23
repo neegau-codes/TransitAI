@@ -34,6 +34,7 @@ id,name,city,state,latitude,longitude,type
 30,Kozhikode Railway Station,Kozhikode,Kerala,11.2483,75.7865,railway_station
 33,Palakkad Bus Stand,Palakkad,Kerala,10.783,76.655,bus_stop
 32,Palakkad Junction Railway Station,Palakkad,Kerala,10.7937,76.6432,railway_station
+40,Shoranur Junction Railway Station,Shoranur,Kerala,10.7588,76.272,railway_station
 27,Trivandrum Central Bus Station,Thiruvananthapuram,Kerala,8.488,76.952,bus_stop
 26,Trivandrum Central Railway Station,Thiruvananthapuram,Kerala,8.4875,76.9515,railway_station
 29,Thrissur Bus Stand,Thrissur,Kerala,10.521,76.215,bus_stop
