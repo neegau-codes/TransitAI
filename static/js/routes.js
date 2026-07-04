@@ -1,7 +1,9 @@
 /**
  * routes.js - Route Planning and Rendering Logic for TransitAI
  * Integrates map visuals, timelines, form submissions, and coordinate management.
- * v2.0 — Updated for glassmorphism UI with dual-tab search console.
+ * v2.1 — Merged with Gemini Canvas mockup polish (header search chip,
+ *        recommended ribbon, mode-composition bar). All existing IDs,
+ *        function names, and API calls are unchanged.
  */
 
 // Global state
@@ -16,9 +18,9 @@ let transitMap = null;
  */
 function switchSearchMode(mode) {
     const structuredContainer = document.getElementById('structured-search-container');
-    const aiContainer         = document.getElementById('ai-search-container');
-    const btnStructured       = document.getElementById('tab-btn-structured');
-    const btnAI               = document.getElementById('tab-btn-ai');
+    const aiContainer = document.getElementById('ai-search-container');
+    const btnStructured = document.getElementById('tab-btn-structured');
+    const btnAI = document.getElementById('tab-btn-ai');
 
     if (!structuredContainer || !aiContainer) return;
 
@@ -87,7 +89,7 @@ const FALLBACK_COORDINATES = {
 document.addEventListener('DOMContentLoaded', () => {
     setDefaultDateTime();
     loadLocationsList();
-    
+
     // Initialize map
     transitMap = new TransitMap('map');
 });
@@ -95,13 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // Set default date to today and time to now
 function setDefaultDateTime() {
     const now = new Date();
-    
+
     // YYYY-MM-DD
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     document.getElementById('date-input').value = `${year}-${month}-${day}`;
-    
+
     // HH:MM
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -113,17 +115,17 @@ async function loadLocationsList() {
     try {
         const response = await fetch('/api/locations');
         const locations = await response.json();
-        
+
         const datalist = document.getElementById('location-list');
         datalist.innerHTML = '';
-        
+
         locations.forEach(loc => {
             // Cache coordinates from database
             dbLocations[loc.name] = {
                 latitude: loc.latitude,
                 longitude: loc.longitude
             };
-            
+
             const option = document.createElement('option');
             option.value = loc.name;
             datalist.appendChild(option);
@@ -145,7 +147,7 @@ function getLocationCoords(locationName) {
     if (FALLBACK_COORDINATES[locationName]) {
         return FALLBACK_COORDINATES[locationName];
     }
-    
+
     // 3. Fallback partial matching
     const keys = Object.keys(FALLBACK_COORDINATES);
     for (const key of keys) {
@@ -153,7 +155,7 @@ function getLocationCoords(locationName) {
             return FALLBACK_COORDINATES[key];
         }
     }
-    
+
     // Default fallback to center of Kochi if nothing matches
     return { latitude: 9.9816, longitude: 76.2999 };
 }
@@ -164,13 +166,13 @@ function setPreference(pref) {
 
     // Map option key → { card id, radio input id }
     const optionMap = {
-        'fastest':          { card: 'pref-fastest-card',   radio: 'pref-fastest' },
-        'cheapest':         { card: 'pref-cheapest-card',  radio: 'pref-cheapest' },
+        'fastest': { card: 'pref-fastest-card', radio: 'pref-fastest' },
+        'cheapest': { card: 'pref-cheapest-card', radio: 'pref-cheapest' },
         'fewest_transfers': { card: 'pref-transfers-card', radio: 'pref-transfers' }
     };
 
     Object.entries(optionMap).forEach(([key, ids]) => {
-        const cardEl  = document.getElementById(ids.card);
+        const cardEl = document.getElementById(ids.card);
         const radioEl = document.getElementById(ids.radio);
         if (!cardEl) return;
 
@@ -182,6 +184,9 @@ function setPreference(pref) {
             if (radioEl) radioEl.checked = false;
         }
     });
+
+    // Keep the "Recommended" ribbon on route cards in sync with preference
+    updateRecommendedRibbon();
 }
 
 // Populate AI text area from examples tags
@@ -198,21 +203,44 @@ function hidePanel(panelId) {
     document.getElementById(panelId).classList.add('hidden');
 }
 
+/**
+ * Scrolls to and focuses the search console — used by the header's
+ * "Edit Search" chip (merged from the mockup's condensed header pattern).
+ */
+function focusSearchForm() {
+    const sidebar = document.getElementById('search-sidebar');
+    if (sidebar) sidebar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const sourceInput = document.getElementById('source-input');
+    if (sourceInput) sourceInput.focus();
+}
+
+/**
+ * Shows/updates the compact header search-context chip once results exist.
+ */
+function updateHeaderChip(source, destination, time) {
+    const chip = document.getElementById('header-search-chip');
+    if (!chip) return;
+    document.getElementById('chip-source').textContent = source;
+    document.getElementById('chip-dest').textContent = destination;
+    document.getElementById('chip-time').innerHTML = `<i class="fa-regular fa-clock"></i> ${time}`;
+    chip.classList.remove('hidden');
+}
+
 // Submit structured search form
 async function handleFormSubmit(event) {
     event.preventDefault();
-    
+
     const source = document.getElementById('source-input').value.trim();
     const destination = document.getElementById('dest-input').value.trim();
     const departureTime = document.getElementById('time-input').value;
-    
+
     if (!source || !destination) return;
-    
+
     hidePanel('welcome-panel');
     hidePanel('results-panel');
     hidePanel('error-panel');
     showPanel('loading-panel');
-    
+
     try {
         const response = await fetch('/api/search', {
             method: 'POST',
@@ -223,17 +251,17 @@ async function handleFormSubmit(event) {
                 departure_time: departureTime
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.error) {
             showError('Search Error', data.error);
             return;
         }
-        
+
         currentRoutes = data;
         displayResults(source, destination, departureTime, null);
-        
+
     } catch (e) {
         showError('Connection Error', 'Failed to connect to the backend routing engine. Make sure the server is running.');
     }
@@ -243,21 +271,21 @@ async function handleFormSubmit(event) {
 async function handleAISubmit() {
     const query = document.getElementById('ai-query-input').value.trim();
     if (!query) return;
-    
+
     hidePanel('welcome-panel');
     hidePanel('results-panel');
     hidePanel('error-panel');
     showPanel('loading-panel');
-    
+
     try {
         const response = await fetch('/api/ai-search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: query })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.error) {
             showError('AI Extraction Error', data.error);
             if (data.parsed_params) {
@@ -265,17 +293,17 @@ async function handleAISubmit() {
             }
             return;
         }
-        
+
         currentRoutes = data.routes;
         syncSidebarFields(data.parsed_params);
-        
+
         displayResults(
             data.parsed_params.source,
             data.parsed_params.destination,
             data.parsed_params.departure_time,
             data.parsed_params
         );
-        
+
     } catch (e) {
         showError('AI Connection Error', 'Failed to connect to the AI query processing engine.');
     }
@@ -293,7 +321,7 @@ function syncSidebarFields(params) {
 function showError(title, desc) {
     hidePanel('loading-panel');
     hidePanel('results-panel');
-    
+
     document.getElementById('error-title').textContent = title;
     document.getElementById('error-desc').textContent = desc;
     showPanel('error-panel');
@@ -303,13 +331,16 @@ function showError(title, desc) {
 function displayResults(source, destination, time, aiParsedParams) {
     hidePanel('loading-panel');
     hidePanel('error-panel');
-    
+
     // Update summary header
     document.getElementById('route-direction').innerHTML = `
         ${source} <i class="fa-solid fa-arrow-right-long" style="color: var(--color-primary); margin: 0 0.25rem;"></i> ${destination}
     `;
     document.getElementById('summary-time').textContent = time;
-    
+
+    // Update the compact header search-context chip (merged from mockup)
+    updateHeaderChip(source, destination, time);
+
     const budgetBadge = document.getElementById('summary-budget-badge');
     if (aiParsedParams && aiParsedParams.budget) {
         document.getElementById('summary-budget').textContent = aiParsedParams.budget;
@@ -317,7 +348,7 @@ function displayResults(source, destination, time, aiParsedParams) {
     } else {
         budgetBadge.classList.add('hidden');
     }
-    
+
     const aiNotice = document.getElementById('ai-notice');
     if (aiParsedParams) {
         let note = `AI Parsed Context: Preference=${aiParsedParams.preference}`;
@@ -332,9 +363,10 @@ function displayResults(source, destination, time, aiParsedParams) {
     populateRouteCard('fastest', getRouteData('fastest'));
     populateRouteCard('cheapest', getRouteData('cheapest'));
     populateRouteCard('fewest_transfers', getRouteData('fewest_transfers'));
-    
+
     let defaultOption = currentPreference;
     selectRouteOption(defaultOption);
+    updateRecommendedRibbon();
     showPanel('results-panel');
 }
 
@@ -360,7 +392,7 @@ function populateRouteCard(cardKey, route) {
     }
     document.getElementById(`card-${cardKey}`).style.display = 'flex';
     document.getElementById(`${cardKey}-cost`).textContent = `₹${route.total_cost || route.cost || 0}`;
-    
+
     const totalMin = route.total_duration || route.duration || 0;
     if (totalMin >= 60) {
         const h = Math.floor(totalMin / 60);
@@ -369,27 +401,71 @@ function populateRouteCard(cardKey, route) {
     } else {
         document.getElementById(`${cardKey}-dur`).innerHTML = `${totalMin} <span>mins</span>`;
     }
-    
+
     const tCount = route.transfers !== undefined ? route.transfers : 0;
     const tText = tCount === 1 ? '1 Transfer' : `${tCount} Transfers`;
     document.getElementById(`${cardKey}-transfers`).textContent = tText;
-    
+
     const modesDiv = document.getElementById(`${cardKey}-modes`);
     modesDiv.innerHTML = '';
-    
+
     const modes = [];
     route.segments.forEach(seg => {
         if (!modes.includes(seg.mode)) {
             modes.push(seg.mode);
         }
     });
-    
+
     modes.forEach(mode => {
         const iconClass = getModeIcon(mode);
         const iconDiv = document.createElement('div');
         iconDiv.className = `mode-mini-icon ${mode}`;
         iconDiv.innerHTML = `<i class="${iconClass}"></i>`;
         modesDiv.appendChild(iconDiv);
+    });
+
+    // Mode-composition bar (merged from mockup's progress bar concept,
+    // but computed from REAL per-segment durations, not fabricated data).
+    renderModeCompositionBar(cardKey, route);
+}
+
+/**
+ * Renders a slim horizontal bar showing the proportion of total journey
+ * duration spent in each transport mode, based on real segment data.
+ */
+function renderModeCompositionBar(cardKey, route) {
+    const bar = document.getElementById(`${cardKey}-composition`);
+    if (!bar) return;
+    bar.innerHTML = '';
+
+    const totalDuration = route.segments.reduce((sum, seg) => sum + (seg.duration || 0), 0);
+    if (totalDuration <= 0) return;
+
+    route.segments.forEach(seg => {
+        const pct = ((seg.duration || 0) / totalDuration) * 100;
+        if (pct <= 0) return;
+        const segDiv = document.createElement('div');
+        segDiv.className = `mode-composition-segment ${seg.mode}`;
+        segDiv.style.width = `${pct}%`;
+        segDiv.title = `${seg.mode}: ${seg.duration} mins`;
+        bar.appendChild(segDiv);
+    });
+}
+
+/**
+ * Shows a "Recommended" ribbon on whichever route card matches the
+ * currently active preference (merged from mockup's "★ BEST OVERALL" tag).
+ */
+function updateRecommendedRibbon() {
+    const options = ['fastest', 'cheapest', 'fewest_transfers'];
+    options.forEach(opt => {
+        const ribbon = document.getElementById(`${opt}-ribbon`);
+        if (!ribbon) return;
+        if (opt === currentPreference) {
+            ribbon.classList.remove('hidden');
+        } else {
+            ribbon.classList.add('hidden');
+        }
     });
 }
 
@@ -414,17 +490,17 @@ function selectRouteOption(optionKey) {
             card.classList.remove('active');
         }
     });
-    
+
     const titleText = optionKey === 'fastest' ? 'Fastest Route' :
-                     optionKey === 'cheapest' ? 'Cheapest Route' : 'Fewest Transfers';
+        optionKey === 'cheapest' ? 'Cheapest Route' : 'Fewest Transfers';
     document.getElementById('details-route-type').textContent = titleText;
-    
+
     const route = getRouteData(optionKey);
     if (!route) return;
     document.getElementById('details-segment-count').textContent = route.segments.length;
-    
+
     renderTimeline(route);
-    
+
     // Map Render Trigger
     renderRouteOnMap(route);
 }
@@ -432,14 +508,14 @@ function selectRouteOption(optionKey) {
 // Render route segments on Leaflet Map
 function renderRouteOnMap(route) {
     if (!transitMap) return;
-    
+
     // Resolve coordinates map for all route locations
     const coordinatesMap = {};
     route.segments.forEach(seg => {
         coordinatesMap[seg.source_name] = getLocationCoords(seg.source_name);
         coordinatesMap[seg.destination_name] = getLocationCoords(seg.destination_name);
     });
-    
+
     transitMap.renderRoute(route, coordinatesMap);
 }
 
@@ -447,16 +523,16 @@ function renderRouteOnMap(route) {
 function renderTimeline(route) {
     const timeline = document.getElementById('route-timeline');
     timeline.innerHTML = '';
-    
+
     if (!route.segments || route.segments.length === 0) return;
-    
+
     const segments = route.segments;
-    
+
     for (let i = 0; i < segments.length; i++) {
         const seg = segments[i];
         const isOrigin = (i === 0);
         const stepClass = isOrigin ? 'timeline-step origin' : 'timeline-step';
-        
+
         let depTime = "";
         let arrTime = "";
         const timeMatch = seg.route_name.match(/\(Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})\)/);
@@ -464,7 +540,7 @@ function renderTimeline(route) {
             depTime = timeMatch[1];
             arrTime = timeMatch[2];
         }
-        
+
         const sourceStep = document.createElement('div');
         sourceStep.className = stepClass;
         sourceStep.innerHTML = `
@@ -477,13 +553,13 @@ function renderTimeline(route) {
             </div>
         `;
         timeline.appendChild(sourceStep);
-        
+
         const travelLink = document.createElement('div');
         travelLink.className = 'timeline-step travel-link';
-        
+
         const cleanRouteName = seg.route_name.split(' (Dep:')[0];
         const modeIcon = getModeIcon(seg.mode);
-        
+
         travelLink.innerHTML = `
             <div class="travel-segment-card">
                 <div class="segment-mode-icon ${seg.mode}">
@@ -512,7 +588,7 @@ function renderTimeline(route) {
             </div>
         `;
         timeline.appendChild(travelLink);
-        
+
         if (i === segments.length - 1) {
             const destStep = document.createElement('div');
             destStep.className = 'timeline-step destination';
@@ -715,9 +791,9 @@ function loadMockTestRoute(testKey) {
     hidePanel('welcome-panel');
     hidePanel('error-panel');
     hidePanel('loading-panel');
-    
+
     currentRoutes = MOCK_ROUTES[testKey];
-    
+
     let source = "Aluva";
     let dest = "Kaloor";
     if (testKey === "Aluva_Thrissur") {
@@ -727,10 +803,10 @@ function loadMockTestRoute(testKey) {
         source = "Kochi";
         dest = "Thiruvananthapuram";
     }
-    
+
     // Fill sidebar inputs
     document.getElementById('source-input').value = source;
     document.getElementById('dest-input').value = dest;
-    
+
     displayResults(source, dest, "08:30", { preference: "fastest" });
 }
