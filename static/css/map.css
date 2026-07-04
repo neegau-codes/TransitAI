@@ -1,0 +1,104 @@
+/* Custom Dark Theme Styles for Leaflet Map in TransitAI */
+
+#map {
+    height: 450px;
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-neon);
+    margin-bottom: 1.5rem;
+    z-index: 1;
+}
+
+.leaflet-container {
+    background-color: var(--bg-base) !important;
+    font-family: inherit;
+}
+
+/* Custom dark theme controls */
+.leaflet-bar {
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-neon) !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+.leaflet-bar a {
+    background-color: rgba(22, 22, 33, 0.95) !important;
+    color: var(--text-main) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    transition: var(--transition);
+}
+
+.leaflet-bar a:hover {
+    background-color: var(--color-primary-glow) !important;
+    color: #ffffff !important;
+}
+
+.leaflet-bar a.leaflet-disabled {
+    background-color: #1a1a24 !important;
+    color: #4b5563 !important;
+}
+
+/* Custom Popups styling */
+.leaflet-popup-content-wrapper {
+    background: rgba(22, 22, 33, 0.95) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 12px !important;
+    box-shadow: var(--shadow-neon);
+}
+
+.leaflet-popup-tip {
+    background: rgba(22, 22, 33, 0.95) !important;
+    border-left: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.leaflet-popup-content {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 12px 16px !important;
+}
+
+.popup-station-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.25rem;
+}
+
+.popup-station-type {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+/* Search form inputs for date/time side-by-side */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Visual timeline enhancements */
+.timeline::before {
+    background: linear-gradient(to bottom, var(--color-secondary), var(--color-accent)) !important;
+}
+
+/* Highlight custom polyline glows */
+.leaflet-interactive {
+    filter: drop-shadow(0 0 4px currentColor);
+}

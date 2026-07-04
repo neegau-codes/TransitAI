@@ -6,11 +6,11 @@
     <meta name="description" content="TransitAI is an AI-powered multi-modal travel planner for Kerala, combining Kochi Metro, Indian Railways, and KSRTC bus routes into a single optimized routing engine.">
     <title>TransitAI - Modern Multi-Modal Travel Planner</title>
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="static/css/style.css">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <!-- Map Custom Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+    <link rel="stylesheet" href="static/css/map.css">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -212,7 +212,7 @@
                     </p>
                     <div class="welcome-divider"></div>
                     <div class="supported-stations-section">
-                        <h4>Supported Hubs & Terminals</h4>
+                        <h4>Supported Hubs &amp; Terminals</h4>
                         <div class="badges-scroll-container">
                             <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Aluva</span>
                             <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Kalamassery</span>
@@ -236,7 +236,7 @@
                     </div>
                     <div>
                         <h3>Analyzing Route Network...</h3>
-                        <p>Building NetworkX graph & matching timetables</p>
+                        <p>Building NetworkX graph &amp; matching timetables</p>
                     </div>
                 </div>
 
@@ -362,7 +362,7 @@
     <!-- Leaflet JS CDN -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <!-- Map & Route Visualizers scripts -->
-    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/routes.js') }}"></script>
+    <script src="static/js/map.js"></script>
+    <script src="static/js/routes.js"></script>
 </body>
 </html>

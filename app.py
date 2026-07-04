@@ -22,11 +22,17 @@ def get_locations():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, name, type FROM locations ORDER BY name")
+        cursor.execute("SELECT id, name, type, latitude, longitude FROM locations ORDER BY name")
         rows = cursor.fetchall()
         conn.close()
         
-        locations = [{"id": r["id"], "name": r["name"], "type": r["type"]} for r in rows]
+        locations = [{
+            "id": r["id"],
+            "name": r["name"],
+            "type": r["type"],
+            "latitude": r["latitude"],
+            "longitude": r["longitude"]
+        } for r in rows]
         return jsonify(locations)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
