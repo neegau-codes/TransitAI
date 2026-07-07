@@ -364,10 +364,19 @@ function displayResults(source, destination, time, aiParsedParams) {
     populateRouteCard('cheapest', getRouteData('cheapest'));
     populateRouteCard('fewest_transfers', getRouteData('fewest_transfers'));
 
-    let defaultOption = currentPreference;
-    selectRouteOption(defaultOption);
-    updateRecommendedRibbon();
+    // Display the panel first so Leaflet can calculate dimensions
     showPanel('results-panel');
+
+    // Use requestAnimationFrame or setTimeout to wait for DOM reflow
+    setTimeout(() => {
+        if (transitMap && transitMap.map) {
+            transitMap.map.invalidateSize();
+        }
+        
+        let defaultOption = currentPreference;
+        selectRouteOption(defaultOption);
+        updateRecommendedRibbon();
+    }, 50);
 }
 
 // Helper to handle decoupled routes structure (array or dictionary)
@@ -509,6 +518,9 @@ function selectRouteOption(optionKey) {
 function renderRouteOnMap(route) {
     if (!transitMap) return;
 
+    // Clear existing map layers
+    transitMap.clearMap();
+
     // Resolve coordinates map for all route locations
     const coordinatesMap = {};
     route.segments.forEach(seg => {
@@ -516,7 +528,146 @@ function renderRouteOnMap(route) {
         coordinatesMap[seg.destination_name] = getLocationCoords(seg.destination_name);
     });
 
-    transitMap.renderRoute(route, coordinatesMap);
+    if (!route || !route.segments || route.segments.length === 0) return;
+
+    const segments = route.segments;
+    const allPoints = [];
+
+    // Define colors for each mode
+    const modeColors = {
+        'metro': '#2563eb', // Blue
+        'train': '#10b981', // Green
+        'bus': '#f97316',   // Orange
+        'walk': '#6b7280'   // Gray
+    };
+
+    // Mode icons for HTML markers
+    const modeIcons = {
+        'metro': 'fa-subway',
+        'train': 'fa-train',
+        'bus': 'fa-bus',
+        'walk': 'fa-person-walking',
+        'origin': 'fa-circle-dot',
+        'destination': 'fa-location-dot'
+    };
+
+    segments.forEach((seg, idx) => {
+        const srcCoords = coordinatesMap[seg.source_name];
+        const dstCoords = coordinatesMap[seg.destination_name];
+
+        if (!srcCoords || !dstCoords) {
+            console.warn(`Missing coordinates for segment: ${seg.source_name} -> ${seg.destination_name}`);
+            return;
+        }
+
+        const p1 = [srcCoords.latitude, srcCoords.longitude];
+        const p2 = [dstCoords.latitude, dstCoords.longitude];
+
+        allPoints.push(p1);
+        allPoints.push(p2);
+
+        // Parse Dep/Arr time from route_name if present
+        let depTime = "N/A";
+        let arrTime = "N/A";
+        const timeMatch = seg.route_name.match(/\(Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})\)/);
+        if (timeMatch) {
+            depTime = timeMatch[1];
+            arrTime = timeMatch[2];
+        }
+
+        const modeColor = modeColors[seg.mode] || '#8b5cf6';
+        // Draw polyline without staggered CSS animation class so it appears immediately
+        const polyline = L.polyline([p1, p2], {
+            color: modeColor,
+            weight: 5,
+            dashArray: seg.mode === 'walk' ? '5, 10' : null
+        });
+        
+        polyline.addTo(transitMap.routesGroup);
+
+        const cleanRouteName = seg.route_name.split(' (Dep:')[0];
+        polyline.bindTooltip(`${cleanRouteName} (${seg.duration} mins)`, {
+            sticky: true,
+            direction: 'top'
+        });
+
+        // Render source location marker
+        const isFirst = (idx === 0);
+        addCustomStationMarker(transitMap, seg.source_name, p1, isFirst ? 'origin' : 'intermediate', seg.mode, modeIcons, modeColors, depTime, arrTime);
+
+        // Render destination marker
+        if (idx === segments.length - 1) {
+            addCustomStationMarker(transitMap, seg.destination_name, p2, 'destination', seg.mode, modeIcons, modeColors, depTime, arrTime);
+        }
+    });
+
+    if (allPoints.length > 0) {
+        const bounds = L.latLngBounds(allPoints);
+        transitMap.map.fitBounds(bounds, {
+            padding: [50, 50],
+            maxZoom: 14,
+            animate: true,
+            duration: 1
+        });
+        
+        // Save bounds for "Center Route" control
+        transitMap.currentBounds = bounds;
+    }
+}
+
+function addCustomStationMarker(transitMap, name, coords, type, mode, modeIcons, modeColors, depTime, arrTime) {
+    let markerColor = '#6b7280';
+    let iconClass = modeIcons[mode] || 'fa-route';
+
+    if (type === 'origin') {
+        markerColor = '#3b82f6';
+        iconClass = modeIcons['origin'];
+    } else if (type === 'destination') {
+        markerColor = '#d946ef';
+        iconClass = modeIcons['destination'];
+    } else {
+        markerColor = modeColors[mode] || '#6b7280';
+    }
+
+    // Custom HTML DivIcon without animation-delay
+    const customIcon = L.divIcon({
+        className: 'custom-map-marker',
+        html: `<div class="marker-pin" style="background-color: ${markerColor}; box-shadow: 0 0 10px ${markerColor};">
+                   <i class="fa-solid ${iconClass}"></i>
+               </div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -15]
+    });
+
+    const marker = L.marker(coords, { icon: customIcon });
+
+    const cleanName = name.replace(/Railway Station|Metro Station|Bus Stand|Bus Stop/g, '').trim();
+    const popupContent = `
+        <div class="popup-container">
+            <div class="popup-station-title">${cleanName}</div>
+            <div class="popup-station-type">${type.toUpperCase()}</div>
+            <div class="popup-details">
+                <div class="popup-detail-item"><i class="fa-solid ${iconClass}"></i> ${mode.toUpperCase()}</div>
+                ${depTime !== "N/A" && type !== 'destination' ? `<div class="popup-detail-item"><i class="fa-regular fa-clock"></i> Dep: ${depTime}</div>` : ''}
+                ${arrTime !== "N/A" && type !== 'origin' ? `<div class="popup-detail-item"><i class="fa-regular fa-clock"></i> Arr: ${arrTime}</div>` : ''}
+            </div>
+        </div>
+    `;
+    marker.bindPopup(popupContent);
+    marker.addTo(transitMap.markersGroup);
+}
+
+// Center map to current route bounds
+function centerMapRoute() {
+    if (transitMap && transitMap.currentBounds) {
+        transitMap.map.fitBounds(transitMap.currentBounds, {
+            padding: [50, 50],
+            maxZoom: 14,
+            animate: true,
+            duration: 1
+        });
+    }
 }
 
 // Render vertical timeline of segments

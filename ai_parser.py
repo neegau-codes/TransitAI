@@ -14,12 +14,12 @@ class AIQueryParser:
         
     def _load_location_names(self) -> List[str]:
         """Loads and formats location names from the database for matching."""
+        conn = None
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute("SELECT name FROM locations")
             full_names = [r["name"] for r in cursor.fetchall()]
-            conn.close()
             
             core_names = set()
             for name in full_names:
@@ -35,6 +35,9 @@ class AIQueryParser:
                 "Kozhikode", "Kannur", "Kottayam", "Kollam", "Thiruvananthapuram", 
                 "Angamaly", "Guruvayur", "Shoranur", "SRR"
             ]
+        finally:
+            if conn:
+                conn.close()
 
     def parse_query(self, query: str) -> Dict[str, Any]:
         """

@@ -102,3 +102,161 @@
 .leaflet-interactive {
     filter: drop-shadow(0 0 4px currentColor);
 }
+
+/* ----------------------------------------------------------------
+   Custom Map Additions (Floating Controls & Animations)
+   ---------------------------------------------------------------- */
+
+.map-wrapper {
+    position: relative;
+}
+
+.map-floating-legend {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 12px 16px;
+    background: rgba(22, 22, 33, 0.85);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-card);
+}
+
+.legend-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 4px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+}
+.legend-item:last-child {
+    margin-bottom: 0;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.legend-color.metro { background-color: #2563eb; box-shadow: 0 0 8px #2563eb; }
+.legend-color.train { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+.legend-color.bus { background-color: #f97316; box-shadow: 0 0 8px #f97316; }
+.legend-color.walk { background-color: #6b7280; box-shadow: 0 0 8px #6b7280; }
+
+.map-center-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(22, 22, 33, 0.85);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-main);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: var(--transition);
+    box-shadow: var(--shadow-card);
+}
+
+.map-center-btn i {
+    font-size: 1.2rem;
+}
+
+.map-center-btn:hover {
+    background: var(--color-primary-glow);
+    color: white;
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+}
+
+/* Custom Marker Styling */
+.custom-map-marker {
+    background: transparent;
+    border: none;
+}
+
+.marker-pin {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    border: 2px solid white;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: markerPop 0.5s ease-out forwards;
+    transform: scale(0);
+    animation-fill-mode: both;
+}
+
+@keyframes markerPop {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.marker-pin:hover {
+    transform: scale(1.2) !important;
+}
+
+/* Animated Polyline */
+.route-polyline {
+    animation: fadeInPolyline 0.8s ease-out forwards;
+    opacity: 0;
+    animation-fill-mode: both;
+}
+
+@keyframes fadeInPolyline {
+    to { opacity: 0.85; }
+}
+
+/* Extended Popup Details */
+.popup-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.popup-details {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.popup-detail-item {
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.popup-detail-item i {
+    width: 14px;
+    text-align: center;
+    color: var(--color-primary);
+}

@@ -322,6 +322,20 @@
                     <!-- Leaflet OSM Map visualizer -->
                     <div class="map-wrapper glass-panel">
                         <div id="map"></div>
+                        
+                        <!-- Floating Legend -->
+                        <div class="map-floating-legend glass-panel">
+                            <div class="legend-title">Modes</div>
+                            <div class="legend-item"><span class="legend-color metro"></span> Metro</div>
+                            <div class="legend-item"><span class="legend-color train"></span> Train</div>
+                            <div class="legend-item"><span class="legend-color bus"></span> Bus</div>
+                            <div class="legend-item"><span class="legend-color walk"></span> Walk</div>
+                        </div>
+
+                        <!-- Center Route Control -->
+                        <button class="map-center-btn glass-panel" onclick="centerMapRoute()" title="Center Route">
+                            <i class="fa-solid fa-location-crosshairs"></i>
+                        </button>
                     </div>
 
                     <!-- Timeline Details Panel -->

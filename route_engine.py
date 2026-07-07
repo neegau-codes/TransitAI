@@ -81,17 +81,21 @@ class RouteEngine:
 
     def build_graph(self) -> Tuple[nx.MultiDiGraph, Dict[int, Location]]:
         """Builds a MultiDiGraph of the multi-modal transit network."""
-        conn = get_db_connection()
-        locations = self._load_locations(conn)
-        
-        # Collect all segments from providers
-        all_segments = []
-        for provider in self.providers:
-            all_segments.extend(provider.get_all_segments(conn))
+        conn = None
+        try:
+            conn = get_db_connection()
+            locations = self._load_locations(conn)
             
-        # Add walking transfers
-        all_segments.extend(self._load_walking_transfers(conn))
-        conn.close()
+            # Collect all segments from providers
+            all_segments = []
+            for provider in self.providers:
+                all_segments.extend(provider.get_all_segments(conn))
+                
+            # Add walking transfers
+            all_segments.extend(self._load_walking_transfers(conn))
+        finally:
+            if conn:
+                conn.close()
 
         # Build Directed MultiGraph to support parallel edges (e.g. metro and bus between same nodes)
         G = nx.MultiDiGraph()

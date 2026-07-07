@@ -19,12 +19,12 @@ def index():
 @app.route('/api/locations', methods=['GET'])
 def get_locations():
     """Returns all available locations (stops/stations) in the database."""
+    conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT id, name, type, latitude, longitude FROM locations ORDER BY name")
         rows = cursor.fetchall()
-        conn.close()
         
         locations = [{
             "id": r["id"],
@@ -36,6 +36,9 @@ def get_locations():
         return jsonify(locations)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/api/search', methods=['POST'])
 def search_routes():
