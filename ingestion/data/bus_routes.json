@@ -1,202 +1,425 @@
 [
-  {
-    "route_name": "KSRTC Kochi-Trivandrum Express",
-    "provider": "KSRTC",
-    "source": "Vytila Mobility Hub",
-    "destination": "Trivandrum Central Bus Station",
-    "duration_minutes": 300,
-    "cost": 280.0,
-    "distance_km": 200.0,
-    "schedules": ["06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
-  },
-  {
-    "route_name": "KSRTC Trivandrum-Kochi Express",
-    "provider": "KSRTC",
-    "source": "Trivandrum Central Bus Station",
-    "destination": "Vytila Mobility Hub",
-    "duration_minutes": 300,
-    "cost": 280.0,
-    "distance_km": 200.0,
-    "schedules": ["07:00", "09:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00"]
-  },
-  {
-    "route_name": "KSRTC Kochi-Thrissur Ordinary",
-    "provider": "KSRTC",
-    "source": "Vytila Mobility Hub",
-    "destination": "Thrissur Bus Stand",
-    "duration_minutes": 90,
-    "cost": 120.0,
-    "distance_km": 75.0,
-    "schedules": ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]
-  },
-  {
-    "route_name": "KSRTC Thrissur-Kochi Ordinary",
-    "provider": "KSRTC",
-    "source": "Thrissur Bus Stand",
-    "destination": "Vytila Mobility Hub",
-    "duration_minutes": 90,
-    "cost": 120.0,
-    "distance_km": 75.0,
-    "schedules": ["06:30", "07:30", "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30"]
-  },
-  {
-    "route_name": "KSRTC Kochi-Kozhikode Super Fast",
-    "provider": "KSRTC",
-    "source": "Vytila Mobility Hub",
-    "destination": "Kozhikode Bus Stand",
-    "duration_minutes": 270,
-    "cost": 260.0,
-    "distance_km": 185.0,
-    "schedules": ["05:00", "07:30", "10:00", "12:30", "15:00", "17:30"]
-  },
-  {
-    "route_name": "KSRTC Kozhikode-Kochi Super Fast",
-    "provider": "KSRTC",
-    "source": "Kozhikode Bus Stand",
-    "destination": "Vytila Mobility Hub",
-    "duration_minutes": 270,
-    "cost": 260.0,
-    "distance_km": 185.0,
-    "schedules": ["06:00", "08:30", "11:00", "13:30", "16:00", "18:30"]
-  },
-  {
-    "route_name": "KSRTC Kochi-Kottayam Ordinary",
-    "provider": "KSRTC",
-    "source": "Vytila Mobility Hub",
-    "destination": "Kottayam Bus Stand",
-    "duration_minutes": 90,
-    "cost": 95.0,
-    "distance_km": 60.0,
-    "schedules": ["06:15", "07:45", "09:15", "10:45", "12:15", "13:45", "15:15", "16:45", "18:15", "19:45"]
-  },
-  {
-    "route_name": "KSRTC Kottayam-Kochi Ordinary",
-    "provider": "KSRTC",
-    "source": "Kottayam Bus Stand",
-    "destination": "Vytila Mobility Hub",
-    "duration_minutes": 90,
-    "cost": 95.0,
-    "distance_km": 60.0,
-    "schedules": ["06:45", "08:15", "09:45", "11:15", "12:45", "14:15", "15:45", "17:15", "18:45", "20:15"]
-  },
-  {
-    "route_name": "KSRTC Kochi-Kollam Express",
-    "provider": "KSRTC",
-    "source": "Vytila Mobility Hub",
-    "destination": "Kollam Bus Stand",
-    "duration_minutes": 150,
-    "cost": 160.0,
-    "distance_km": 108.0,
-    "schedules": ["06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
-  },
-  {
-    "route_name": "KSRTC Kollam-Kochi Express",
-    "provider": "KSRTC",
-    "source": "Kollam Bus Stand",
-    "destination": "Vytila Mobility Hub",
-    "duration_minutes": 150,
-    "cost": 160.0,
-    "distance_km": 108.0,
-    "schedules": ["05:30", "07:30", "09:30", "11:30", "13:30", "15:30", "17:30", "19:30"]
-  },
-  {
-    "route_name": "KSRTC Kollam-Trivandrum Ordinary",
-    "provider": "KSRTC",
-    "source": "Kollam Bus Stand",
-    "destination": "Trivandrum Central Bus Station",
-    "duration_minutes": 75,
-    "cost": 80.0,
-    "distance_km": 68.0,
-    "schedules": ["05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"]
-  },
-  {
-    "route_name": "KSRTC Trivandrum-Kollam Ordinary",
-    "provider": "KSRTC",
-    "source": "Trivandrum Central Bus Station",
-    "destination": "Kollam Bus Stand",
-    "duration_minutes": 75,
-    "cost": 80.0,
-    "distance_km": 68.0,
-    "schedules": ["05:30", "06:30", "07:30", "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30", "21:30"]
-  },
-  {
-    "route_name": "KSRTC Thrissur-Palakkad Ordinary",
-    "provider": "KSRTC",
-    "source": "Thrissur Bus Stand",
-    "destination": "Palakkad Bus Stand",
-    "duration_minutes": 90,
-    "cost": 85.0,
-    "distance_km": 55.0,
-    "schedules": ["06:00", "07:30", "09:00", "10:30", "12:00", "13:30", "15:00", "16:30", "18:00", "19:30"]
-  },
-  {
-    "route_name": "KSRTC Palakkad-Thrissur Ordinary",
-    "provider": "KSRTC",
-    "source": "Palakkad Bus Stand",
-    "destination": "Thrissur Bus Stand",
-    "duration_minutes": 90,
-    "cost": 85.0,
-    "distance_km": 55.0,
-    "schedules": ["05:30", "07:00", "08:30", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00"]
-  },
-  {
-    "route_name": "KSRTC Kozhikode-Kannur Ordinary",
-    "provider": "KSRTC",
-    "source": "Kozhikode Bus Stand",
-    "destination": "Kannur Bus Stand",
-    "duration_minutes": 90,
-    "cost": 90.0,
-    "distance_km": 92.0,
-    "schedules": ["05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]
-  },
-  {
-    "route_name": "KSRTC Kannur-Kozhikode Ordinary",
-    "provider": "KSRTC",
-    "source": "Kannur Bus Stand",
-    "destination": "Kozhikode Bus Stand",
-    "duration_minutes": 90,
-    "cost": 90.0,
-    "distance_km": 92.0,
-    "schedules": ["05:30", "06:30", "07:30", "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30"]
-  },
-  {
-    "route_name": "KSRTC Kochi-Palakkad Super Fast",
-    "provider": "KSRTC",
-    "source": "Vytila Mobility Hub",
-    "destination": "Palakkad Bus Stand",
-    "duration_minutes": 180,
-    "cost": 195.0,
-    "distance_km": 150.0,
-    "schedules": ["06:00", "09:00", "12:00", "15:00", "18:00"]
-  },
-  {
-    "route_name": "KSRTC Palakkad-Kochi Super Fast",
-    "provider": "KSRTC",
-    "source": "Palakkad Bus Stand",
-    "destination": "Vytila Mobility Hub",
-    "duration_minutes": 180,
-    "cost": 195.0,
-    "distance_km": 150.0,
-    "schedules": ["05:30", "08:30", "11:30", "14:30", "17:30"]
-  },
-  {
-    "route_name": "KSRTC Angamaly-Kochi Ordinary",
-    "provider": "KSRTC",
-    "source": "Angamaly Bus Stand",
-    "destination": "Aluva Bus Stand",
-    "duration_minutes": 30,
-    "cost": 35.0,
-    "distance_km": 18.0,
-    "schedules": ["05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]
-  },
-  {
-    "route_name": "KSRTC Aluva-Angamaly Ordinary",
-    "provider": "KSRTC",
-    "source": "Aluva Bus Stand",
-    "destination": "Angamaly Bus Stand",
-    "duration_minutes": 30,
-    "cost": 35.0,
-    "distance_km": 18.0,
-    "schedules": ["06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30", "20:30"]
-  }
+    {
+        "route_name": "KSRTC Kochi-Aluva Express",
+        "provider": "KSRTC",
+        "source": "Vytila Mobility Hub",
+        "destination": "Aluva Bus Stand",
+        "duration_minutes": 26,
+        "cost": 30,
+        "distance_km": 20,
+        "schedules": [
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "23:59"
+        ]
+    },
+    {
+        "route_name": "KSRTC Aluva-Kochi Express",
+        "provider": "KSRTC",
+        "source": "Aluva Bus Stand",
+        "destination": "Vytila Mobility Hub",
+        "duration_minutes": 26,
+        "cost": 30,
+        "distance_km": 20,
+        "schedules": [
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "23:59"
+        ]
+    },
+    {
+        "route_name": "KSRTC Aluva-Angamaly Express",
+        "provider": "KSRTC",
+        "source": "Aluva Bus Stand",
+        "destination": "Angamaly Bus Stand",
+        "duration_minutes": 20,
+        "cost": 22,
+        "distance_km": 15,
+        "schedules": [
+            "06:00",
+            "10:00",
+            "14:00",
+            "18:00",
+            "22:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Angamaly-Aluva Express",
+        "provider": "KSRTC",
+        "source": "Angamaly Bus Stand",
+        "destination": "Aluva Bus Stand",
+        "duration_minutes": 20,
+        "cost": 22,
+        "distance_km": 15,
+        "schedules": [
+            "05:15",
+            "09:15",
+            "13:15",
+            "17:15",
+            "21:15"
+        ]
+    },
+    {
+        "route_name": "KSRTC Angamaly-Thrissur Express",
+        "provider": "KSRTC",
+        "source": "Angamaly Bus Stand",
+        "destination": "Thrissur Bus Stand",
+        "duration_minutes": 60,
+        "cost": 67,
+        "distance_km": 45,
+        "schedules": [
+            "05:15",
+            "09:15",
+            "13:15",
+            "17:15",
+            "21:15"
+        ]
+    },
+    {
+        "route_name": "KSRTC Thrissur-Angamaly Express",
+        "provider": "KSRTC",
+        "source": "Thrissur Bus Stand",
+        "destination": "Angamaly Bus Stand",
+        "duration_minutes": 60,
+        "cost": 67,
+        "distance_km": 45,
+        "schedules": [
+            "06:00",
+            "10:00",
+            "14:00",
+            "18:00",
+            "22:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Thrissur-Palakkad Express",
+        "provider": "KSRTC",
+        "source": "Thrissur Bus Stand",
+        "destination": "Palakkad Bus Stand",
+        "duration_minutes": 93,
+        "cost": 105,
+        "distance_km": 70,
+        "schedules": [
+            "06:00",
+            "10:00",
+            "14:00",
+            "18:00",
+            "22:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Palakkad-Thrissur Express",
+        "provider": "KSRTC",
+        "source": "Palakkad Bus Stand",
+        "destination": "Thrissur Bus Stand",
+        "duration_minutes": 93,
+        "cost": 105,
+        "distance_km": 70,
+        "schedules": [
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "23:59"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kochi-Kottayam Express",
+        "provider": "KSRTC",
+        "source": "Vytila Mobility Hub",
+        "destination": "Kottayam Bus Stand",
+        "duration_minutes": 86,
+        "cost": 97,
+        "distance_km": 65,
+        "schedules": [
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "23:59"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kottayam-Kochi Express",
+        "provider": "KSRTC",
+        "source": "Kottayam Bus Stand",
+        "destination": "Vytila Mobility Hub",
+        "duration_minutes": 86,
+        "cost": 97,
+        "distance_km": 65,
+        "schedules": [
+            "05:15",
+            "09:15",
+            "13:15",
+            "17:15",
+            "21:15"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kottayam-Kollam Express",
+        "provider": "KSRTC",
+        "source": "Kottayam Bus Stand",
+        "destination": "Kollam Bus Stand",
+        "duration_minutes": 140,
+        "cost": 157,
+        "distance_km": 105,
+        "schedules": [
+            "06:00",
+            "10:00",
+            "14:00",
+            "18:00",
+            "22:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kollam-Kottayam Express",
+        "provider": "KSRTC",
+        "source": "Kollam Bus Stand",
+        "destination": "Kottayam Bus Stand",
+        "duration_minutes": 140,
+        "cost": 157,
+        "distance_km": 105,
+        "schedules": [
+            "06:00",
+            "10:00",
+            "14:00",
+            "18:00",
+            "22:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kollam-Trivandrum Express",
+        "provider": "KSRTC",
+        "source": "Kollam Bus Stand",
+        "destination": "Trivandrum Central Bus Station",
+        "duration_minutes": 86,
+        "cost": 97,
+        "distance_km": 65,
+        "schedules": [
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "00:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Trivandrum-Kollam Express",
+        "provider": "KSRTC",
+        "source": "Trivandrum Central Bus Station",
+        "destination": "Kollam Bus Stand",
+        "duration_minutes": 86,
+        "cost": 97,
+        "distance_km": 65,
+        "schedules": [
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "00:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kochi-Kozhikode Express",
+        "provider": "KSRTC",
+        "source": "Vytila Mobility Hub",
+        "destination": "Kozhikode Bus Stand",
+        "duration_minutes": 240,
+        "cost": 270,
+        "distance_km": 180,
+        "schedules": [
+            "06:00",
+            "10:00",
+            "14:00",
+            "18:00",
+            "22:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kozhikode-Kochi Express",
+        "provider": "KSRTC",
+        "source": "Kozhikode Bus Stand",
+        "destination": "Vytila Mobility Hub",
+        "duration_minutes": 240,
+        "cost": 270,
+        "distance_km": 180,
+        "schedules": [
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "23:59"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kozhikode-Kannur Express",
+        "provider": "KSRTC",
+        "source": "Kozhikode Bus Stand",
+        "destination": "Kannur Bus Stand",
+        "duration_minutes": 120,
+        "cost": 135,
+        "distance_km": 90,
+        "schedules": [
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "00:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kannur-Kozhikode Express",
+        "provider": "KSRTC",
+        "source": "Kannur Bus Stand",
+        "destination": "Kozhikode Bus Stand",
+        "duration_minutes": 120,
+        "cost": 135,
+        "distance_km": 90,
+        "schedules": [
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "00:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Thrissur-Kozhikode Express",
+        "provider": "KSRTC",
+        "source": "Thrissur Bus Stand",
+        "destination": "Kozhikode Bus Stand",
+        "duration_minutes": 153,
+        "cost": 172,
+        "distance_km": 115,
+        "schedules": [
+            "05:15",
+            "09:15",
+            "13:15",
+            "17:15",
+            "21:15"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kozhikode-Thrissur Express",
+        "provider": "KSRTC",
+        "source": "Kozhikode Bus Stand",
+        "destination": "Thrissur Bus Stand",
+        "duration_minutes": 153,
+        "cost": 172,
+        "distance_km": 115,
+        "schedules": [
+            "05:15",
+            "09:15",
+            "13:15",
+            "17:15",
+            "21:15"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kochi-Thrissur Express",
+        "provider": "KSRTC",
+        "source": "Vytila Mobility Hub",
+        "destination": "Thrissur Bus Stand",
+        "duration_minutes": 106,
+        "cost": 120,
+        "distance_km": 80,
+        "schedules": [
+            "07:30",
+            "11:30",
+            "15:30",
+            "19:30",
+            "23:30"
+        ]
+    },
+    {
+        "route_name": "KSRTC Thrissur-Kochi Express",
+        "provider": "KSRTC",
+        "source": "Thrissur Bus Stand",
+        "destination": "Vytila Mobility Hub",
+        "duration_minutes": 106,
+        "cost": 120,
+        "distance_km": 80,
+        "schedules": [
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "00:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kochi-Trivandrum Express",
+        "provider": "KSRTC",
+        "source": "Vytila Mobility Hub",
+        "destination": "Trivandrum Central Bus Station",
+        "duration_minutes": 280,
+        "cost": 315,
+        "distance_km": 210,
+        "schedules": [
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "00:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Trivandrum-Kochi Express",
+        "provider": "KSRTC",
+        "source": "Trivandrum Central Bus Station",
+        "destination": "Vytila Mobility Hub",
+        "duration_minutes": 280,
+        "cost": 315,
+        "distance_km": 210,
+        "schedules": [
+            "06:00",
+            "10:00",
+            "14:00",
+            "18:00",
+            "22:00"
+        ]
+    },
+    {
+        "route_name": "KSRTC Trivandrum-Kozhikode Express",
+        "provider": "KSRTC",
+        "source": "Trivandrum Central Bus Station",
+        "destination": "Kozhikode Bus Stand",
+        "duration_minutes": 520,
+        "cost": 585,
+        "distance_km": 390,
+        "schedules": [
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "23:59"
+        ]
+    },
+    {
+        "route_name": "KSRTC Kozhikode-Trivandrum Express",
+        "provider": "KSRTC",
+        "source": "Kozhikode Bus Stand",
+        "destination": "Trivandrum Central Bus Station",
+        "duration_minutes": 520,
+        "cost": 585,
+        "distance_km": 390,
+        "schedules": [
+            "04:00",
+            "08:00",
+            "12:00",
+            "16:00",
+            "20:00",
+            "00:00"
+        ]
+    }
 ]

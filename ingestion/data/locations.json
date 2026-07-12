@@ -1,50 +1,434 @@
 [
-  {"name": "Aluva Railway Station",              "city": "Kochi",              "state": "Kerala", "latitude": 10.1081, "longitude": 76.3563, "type": "railway_station"},
-  {"name": "Aluva Metro Station",                "city": "Kochi",              "state": "Kerala", "latitude": 10.1095, "longitude": 76.3570, "type": "metro_station"},
-  {"name": "Aluva Bus Stand",                    "city": "Kochi",              "state": "Kerala", "latitude": 10.1090, "longitude": 76.3558, "type": "bus_stop"},
-  {"name": "Kalamassery Metro Station",          "city": "Kochi",              "state": "Kerala", "latitude": 10.0520, "longitude": 76.3210, "type": "metro_station"},
-  {"name": "Kalamassery Bus Stop",               "city": "Kochi",              "state": "Kerala", "latitude": 10.0515, "longitude": 76.3205, "type": "bus_stop"},
-  {"name": "Pathadipalam Metro Station",         "city": "Kochi",              "state": "Kerala", "latitude": 10.0385, "longitude": 76.3130, "type": "metro_station"},
-  {"name": "Edappally Metro Station",            "city": "Kochi",              "state": "Kerala", "latitude": 10.0245, "longitude": 76.3078, "type": "metro_station"},
-  {"name": "Edappally Bus Stop",                 "city": "Kochi",              "state": "Kerala", "latitude": 10.0240, "longitude": 76.3070, "type": "bus_stop"},
-  {"name": "Palarivattom Metro Station",         "city": "Kochi",              "state": "Kerala", "latitude": 10.0076, "longitude": 76.3005, "type": "metro_station"},
-  {"name": "Kaloor Metro Station",               "city": "Kochi",              "state": "Kerala", "latitude": 9.9912,  "longitude": 76.2905, "type": "metro_station"},
-  {"name": "Kaloor Bus Stop",                    "city": "Kochi",              "state": "Kerala", "latitude": 9.9908,  "longitude": 76.2900, "type": "bus_stop"},
-  {"name": "Ernakulam Town Railway Station",     "city": "Kochi",              "state": "Kerala", "latitude": 9.9922,  "longitude": 76.2870, "type": "railway_station"},
-  {"name": "Town Hall Metro Station",            "city": "Kochi",              "state": "Kerala", "latitude": 9.9918,  "longitude": 76.2885, "type": "metro_station"},
-  {"name": "North Bus Stop",                     "city": "Kochi",              "state": "Kerala", "latitude": 9.9910,  "longitude": 76.2865, "type": "bus_stop"},
-  {"name": "Ernakulam Junction Railway Station", "city": "Kochi",              "state": "Kerala", "latitude": 9.9678,  "longitude": 76.2860, "type": "railway_station"},
-  {"name": "Ernakulam South Metro Station",      "city": "Kochi",              "state": "Kerala", "latitude": 9.9682,  "longitude": 76.2875, "type": "metro_station"},
-  {"name": "South Bus Stop",                     "city": "Kochi",              "state": "Kerala", "latitude": 9.9670,  "longitude": 76.2855, "type": "bus_stop"},
-  {"name": "Elamkulam Metro Station",            "city": "Kochi",              "state": "Kerala", "latitude": 9.9654,  "longitude": 76.3050, "type": "metro_station"},
-  {"name": "Vytila Metro Station",               "city": "Kochi",              "state": "Kerala", "latitude": 9.9690,  "longitude": 76.3200, "type": "metro_station"},
-  {"name": "Vytila Mobility Hub",                "city": "Kochi",              "state": "Kerala", "latitude": 9.9685,  "longitude": 76.3210, "type": "bus_stop"},
-  {"name": "Tripunithura Railway Station",       "city": "Kochi",              "state": "Kerala", "latitude": 9.9520,  "longitude": 76.3500, "type": "railway_station"},
-  {"name": "Tripunithura Metro Station",         "city": "Kochi",              "state": "Kerala", "latitude": 9.9535,  "longitude": 76.3512, "type": "metro_station"},
-  {"name": "Tripunithura Bus Stand",             "city": "Kochi",              "state": "Kerala", "latitude": 9.9515,  "longitude": 76.3490, "type": "bus_stop"},
-
-  {"name": "Angamaly Railway Station",           "city": "Angamaly",           "state": "Kerala", "latitude": 10.1970, "longitude": 76.3862, "type": "railway_station"},
-  {"name": "Angamaly Bus Stand",                 "city": "Angamaly",           "state": "Kerala", "latitude": 10.1975, "longitude": 76.3870, "type": "bus_stop"},
-
-  {"name": "Trivandrum Central Railway Station", "city": "Thiruvananthapuram", "state": "Kerala", "latitude": 8.4875,  "longitude": 76.9515, "type": "railway_station"},
-  {"name": "Trivandrum Central Bus Station",     "city": "Thiruvananthapuram", "state": "Kerala", "latitude": 8.4880,  "longitude": 76.9520, "type": "bus_stop"},
-
-  {"name": "Thrissur Railway Station",           "city": "Thrissur",           "state": "Kerala", "latitude": 10.5186, "longitude": 76.2163, "type": "railway_station"},
-  {"name": "Thrissur Bus Stand",                 "city": "Thrissur",           "state": "Kerala", "latitude": 10.5210, "longitude": 76.2150, "type": "bus_stop"},
-
-  {"name": "Kozhikode Railway Station",          "city": "Kozhikode",          "state": "Kerala", "latitude": 11.2483, "longitude": 75.7865, "type": "railway_station"},
-  {"name": "Kozhikode Bus Stand",                "city": "Kozhikode",          "state": "Kerala", "latitude": 11.2490, "longitude": 75.7875, "type": "bus_stop"},
-
-  {"name": "Palakkad Junction Railway Station",  "city": "Palakkad",           "state": "Kerala", "latitude": 10.7937, "longitude": 76.6432, "type": "railway_station"},
-  {"name": "Palakkad Bus Stand",                 "city": "Palakkad",           "state": "Kerala", "latitude": 10.7830, "longitude": 76.6550, "type": "bus_stop"},
-
-  {"name": "Kollam Junction Railway Station",    "city": "Kollam",             "state": "Kerala", "latitude": 8.8872,  "longitude": 76.5960, "type": "railway_station"},
-  {"name": "Kollam Bus Stand",                   "city": "Kollam",             "state": "Kerala", "latitude": 8.8900,  "longitude": 76.5910, "type": "bus_stop"},
-
-  {"name": "Kottayam Railway Station",           "city": "Kottayam",           "state": "Kerala", "latitude": 9.5898,  "longitude": 76.5388, "type": "railway_station"},
-  {"name": "Kottayam Bus Stand",                 "city": "Kottayam",           "state": "Kerala", "latitude": 9.5870,  "longitude": 76.5300, "type": "bus_stop"},
-
-  {"name": "Kannur Railway Station",             "city": "Kannur",             "state": "Kerala", "latitude": 11.8745, "longitude": 75.3704, "type": "railway_station"},
-  {"name": "Kannur Bus Stand",                   "city": "Kannur",             "state": "Kerala", "latitude": 11.8750, "longitude": 75.3710, "type": "bus_stop"},
-  {"name": "Shoranur Junction Railway Station",  "city": "Shoranur",           "state": "Kerala", "latitude": 10.7588, "longitude": 76.272,  "type": "railway_station"}
+  {
+    "name": "Aluva Railway Station",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.1081,
+    "longitude": 76.3563,
+    "type": "railway_station"
+  },
+  {
+    "name": "Aluva Bus Stand",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.109,
+    "longitude": 76.3558,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Kalamassery Bus Stop",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.0515,
+    "longitude": 76.3205,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Edappally Bus Stop",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.024,
+    "longitude": 76.307,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Kaloor Bus Stop",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9908,
+    "longitude": 76.29,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Ernakulam Town Railway Station",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9922,
+    "longitude": 76.287,
+    "type": "railway_station"
+  },
+  {
+    "name": "North Bus Stop",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.991,
+    "longitude": 76.2865,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Ernakulam Junction Railway Station",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9678,
+    "longitude": 76.286,
+    "type": "railway_station"
+  },
+  {
+    "name": "South Bus Stop",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.967,
+    "longitude": 76.2855,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Vytila Mobility Hub",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9685,
+    "longitude": 76.321,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Tripunithura Railway Station",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.952,
+    "longitude": 76.35,
+    "type": "railway_station"
+  },
+  {
+    "name": "Tripunithura Bus Stand",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9515,
+    "longitude": 76.349,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Angamaly Railway Station",
+    "city": "Angamaly",
+    "state": "Kerala",
+    "latitude": 10.197,
+    "longitude": 76.3862,
+    "type": "railway_station"
+  },
+  {
+    "name": "Angamaly Bus Stand",
+    "city": "Angamaly",
+    "state": "Kerala",
+    "latitude": 10.1975,
+    "longitude": 76.387,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Trivandrum Central Railway Station",
+    "city": "Thiruvananthapuram",
+    "state": "Kerala",
+    "latitude": 8.4875,
+    "longitude": 76.9515,
+    "type": "railway_station"
+  },
+  {
+    "name": "Trivandrum Central Bus Station",
+    "city": "Thiruvananthapuram",
+    "state": "Kerala",
+    "latitude": 8.488,
+    "longitude": 76.952,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Thrissur Railway Station",
+    "city": "Thrissur",
+    "state": "Kerala",
+    "latitude": 10.5186,
+    "longitude": 76.2163,
+    "type": "railway_station"
+  },
+  {
+    "name": "Thrissur Bus Stand",
+    "city": "Thrissur",
+    "state": "Kerala",
+    "latitude": 10.521,
+    "longitude": 76.215,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Kozhikode Railway Station",
+    "city": "Kozhikode",
+    "state": "Kerala",
+    "latitude": 11.2483,
+    "longitude": 75.7865,
+    "type": "railway_station"
+  },
+  {
+    "name": "Kozhikode Bus Stand",
+    "city": "Kozhikode",
+    "state": "Kerala",
+    "latitude": 11.249,
+    "longitude": 75.7875,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Palakkad Junction Railway Station",
+    "city": "Palakkad",
+    "state": "Kerala",
+    "latitude": 10.7937,
+    "longitude": 76.6432,
+    "type": "railway_station"
+  },
+  {
+    "name": "Palakkad Bus Stand",
+    "city": "Palakkad",
+    "state": "Kerala",
+    "latitude": 10.783,
+    "longitude": 76.655,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Kollam Junction Railway Station",
+    "city": "Kollam",
+    "state": "Kerala",
+    "latitude": 8.8872,
+    "longitude": 76.596,
+    "type": "railway_station"
+  },
+  {
+    "name": "Kollam Bus Stand",
+    "city": "Kollam",
+    "state": "Kerala",
+    "latitude": 8.89,
+    "longitude": 76.591,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Kottayam Railway Station",
+    "city": "Kottayam",
+    "state": "Kerala",
+    "latitude": 9.5898,
+    "longitude": 76.5388,
+    "type": "railway_station"
+  },
+  {
+    "name": "Kottayam Bus Stand",
+    "city": "Kottayam",
+    "state": "Kerala",
+    "latitude": 9.587,
+    "longitude": 76.53,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Kannur Railway Station",
+    "city": "Kannur",
+    "state": "Kerala",
+    "latitude": 11.8745,
+    "longitude": 75.3704,
+    "type": "railway_station"
+  },
+  {
+    "name": "Kannur Bus Stand",
+    "city": "Kannur",
+    "state": "Kerala",
+    "latitude": 11.875,
+    "longitude": 75.371,
+    "type": "bus_stop"
+  },
+  {
+    "name": "Shoranur Junction Railway Station",
+    "city": "Shoranur",
+    "state": "Kerala",
+    "latitude": 10.7588,
+    "longitude": 76.272,
+    "type": "railway_station"
+  },
+  {
+    "name": "Aluva",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.1095,
+    "longitude": 76.357,
+    "type": "metro_station"
+  },
+  {
+    "name": "Pulinchodu",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.0,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Companypady",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.995,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Ambattukavu",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.989999999999998,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Muttom",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.984999999999998,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Kalamassery",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.052,
+    "longitude": 76.321,
+    "type": "metro_station"
+  },
+  {
+    "name": "Cochin University",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.979999999999997,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Pathadipalam",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.0385,
+    "longitude": 76.313,
+    "type": "metro_station"
+  },
+  {
+    "name": "Edapally",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.0245,
+    "longitude": 76.3078,
+    "type": "metro_station"
+  },
+  {
+    "name": "Changampuzha",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.974999999999996,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Palarivattom",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.0076,
+    "longitude": 76.3005,
+    "type": "metro_station"
+  },
+  {
+    "name": "JLN Stadium",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.969999999999995,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Kaloor",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9912,
+    "longitude": 76.2905,
+    "type": "metro_station"
+  },
+  {
+    "name": "Town Hall",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9918,
+    "longitude": 76.2885,
+    "type": "metro_station"
+  },
+  {
+    "name": "MG Road",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.964999999999995,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Maharajas",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.959999999999994,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Ernakulam South",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9682,
+    "longitude": 76.2875,
+    "type": "metro_station"
+  },
+  {
+    "name": "Kadavanthra",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.954999999999993,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Elamkulam",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9654,
+    "longitude": 76.305,
+    "type": "metro_station"
+  },
+  {
+    "name": "Vytilla",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.969,
+    "longitude": 76.32,
+    "type": "metro_station"
+  },
+  {
+    "name": "Thaikoodam",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.949999999999992,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Petta",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.944999999999991,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Vadakkekotta",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.93999999999999,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "SN Junction",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.93499999999999,
+    "longitude": 76.3,
+    "type": "metro_station"
+  },
+  {
+    "name": "Tripunithura Terminal",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 9.9535,
+    "longitude": 76.3512,
+    "type": "metro_station"
+  }
 ]
