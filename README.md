@@ -290,13 +290,15 @@ TransitAI understands:
 ---
 
 # 📸 Screenshots
+<img width="1475" height="906" alt="Home Page" src="https://github.com/user-attachments/assets/768de57c-5d1c-435b-abd9-7279b4299e46" />
+<img width="642" height="802" alt="AI search" src="https://github.com/user-attachments/assets/ef3d2139-0b76-4fae-bdaa-4dfb811c34cf" />
+<img width="896" height="895" alt="Routing and Maps" src="https://github.com/user-attachments/assets/81138540-06e6-4529-bf0f-226adee8cf5c" />
 
 
 
 - Home Page
 - AI Search
-- Route Results
-- Interactive Map
+- Route Results & Interactive Map
 
 
 ---
