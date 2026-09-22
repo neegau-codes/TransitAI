@@ -275,8 +275,16 @@ class RecommendationEngine:
             
             explanation = self._generate_explanation(cat, best_choice["metrics"]["transfers"])
             
+            v2_label = {
+                "Best Overall": "BEST",
+                "Fastest": "FASTEST",
+                "Cheapest": "CHEAPEST",
+                "Least Walking": "LEAST WALKING"
+            }.get(cat, cat)
+
             recommendations.append({
                 "category": cat,
+                "label": v2_label,
                 "explanation": explanation,
                 "tradeoff": "None",  # Maintained for backwards compatibility
                 "total_time": best_choice["route"]["duration"],
@@ -286,3 +294,75 @@ class RecommendationEngine:
             })
             
         return recommendations
+
+    def generate_v2_recommendations(self, routes: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Generates recommendations adhering strictly to the V2 four public labels:
+        BEST, FASTEST, CHEAPEST, LEAST WALKING.
+        """
+        label_map = {
+            "Best Overall": "BEST",
+            "Fastest": "FASTEST",
+            "Cheapest": "CHEAPEST",
+            "Least Walking": "LEAST WALKING"
+        }
+        recs = self.generate_recommendations(routes)
+        v2_routes = []
+        seen_labels = set()
+
+        for r in recs:
+            v2_lbl = label_map.get(r["category"])
+            if v2_lbl and v2_lbl not in seen_labels:
+                seen_labels.add(v2_lbl)
+                route_payload = r.get("route", {})
+                raw_segments = route_payload.get("segments", [])
+
+                legs = []
+                walking_mins = 0
+                for seg in raw_segments:
+                    mode = seg.get("mode", "walk")
+                    if mode == "walk":
+                        walking_mins += seg.get("duration", 0)
+
+                    # Ensure leg format matches V2 schema
+                    dept = seg.get("departure")
+                    arr = seg.get("arrival")
+                    if not dept or not arr:
+                        import re
+                        m = re.search(r'Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})', seg.get("route_name", ""))
+                        if m:
+                            dept = dept or m.group(1)
+                            arr = arr or m.group(2)
+
+                    legs.append({
+                        "mode": mode.upper(),
+                        "from": seg.get("source_name") or seg.get("from"),
+                        "to": seg.get("destination_name") or seg.get("to"),
+                        "departure": dept or None,
+                        "arrival": arr or None,
+                        "duration_minutes": seg.get("duration", 0),
+                        "fare": {
+                            "amount": seg.get("cost", 0.0),
+                            "currency": "INR",
+                            "status": seg.get("status", "SCHEDULED")
+                        },
+                        "status": seg.get("status", "ESTIMATED" if mode == "walk" else "SCHEDULED"),
+                        "source": seg.get("source", "ESTIMATED" if mode == "walk" else "KMRL")
+                    })
+
+                v2_routes.append({
+                    "route_id": f"ta_{len(v2_routes)+1:03d}",
+                    "label": v2_lbl,
+                    "duration_minutes": r["total_time"],
+                    "fare": {
+                        "amount": r["total_cost"],
+                        "currency": "INR",
+                        "status": "SCHEDULED"
+                    },
+                    "transfers": r["transfers"],
+                    "walking_minutes": walking_mins,
+                    "status": "SCHEDULED",
+                    "legs": legs
+                })
+
+        return v2_routes

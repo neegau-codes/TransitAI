@@ -875,3 +875,47 @@ class AIQueryParser:
             return self._build_incomplete_response(source, destination, query, base_result)
 
         return base_result
+
+    def to_v2_intent(
+        self,
+        parsed_params: Optional[Dict[str, Any]] = None,
+        query: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Converts parsed parameters or raw query into the V2 intent contract:
+        {
+          "origin": "...",
+          "destination": "...",
+          "date": "...",
+          "arrive_before": null,
+          "depart_after": null,
+          "budget": null,
+          "preferred_modes": []
+        }
+        """
+        if parsed_params is None:
+            if query is not None:
+                parsed_params = self.parse_query(query)
+            else:
+                parsed_params = {}
+
+        pref_modes = parsed_params.get("additional_constraints", {}).get("preferred_modes", [])
+
+        arr_before = parsed_params.get("arrival_deadline")
+        dept_after = parsed_params.get("departure_time")
+        if arr_before and dept_after == arr_before:
+            dept_after = None
+
+        date_val = parsed_params.get("travel_date")
+        if not date_val:
+            date_val = datetime.date.today().isoformat()
+
+        return {
+            "origin": parsed_params.get("source") or parsed_params.get("origin"),
+            "destination": parsed_params.get("destination"),
+            "date": date_val,
+            "arrive_before": arr_before,
+            "depart_after": dept_after,
+            "budget": parsed_params.get("budget_limit") if parsed_params.get("budget_limit") is not None else parsed_params.get("budget"),
+            "preferred_modes": pref_modes
+        }
