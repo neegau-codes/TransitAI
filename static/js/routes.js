@@ -278,7 +278,7 @@ async function handleAISubmit() {
     showPanel('loading-panel');
 
     try {
-        const response = await fetch('/api/ai-search', {
+        const response = await fetch('/api/search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: query })
@@ -294,13 +294,19 @@ async function handleAISubmit() {
             return;
         }
 
-        currentRoutes = data.routes;
-        syncSidebarFields(data.parsed_params);
+        currentRoutes = data;
+        if (data.parsed_params) {
+            syncSidebarFields(data.parsed_params);
+        }
+
+        const src = data.parsed_params ? data.parsed_params.source : (data.intent ? data.intent.origin : '');
+        const dst = data.parsed_params ? data.parsed_params.destination : (data.intent ? data.intent.destination : '');
+        const dept = data.parsed_params ? data.parsed_params.departure_time : (data.intent ? data.intent.departure_time : '');
 
         displayResults(
-            data.parsed_params.source,
-            data.parsed_params.destination,
-            data.parsed_params.departure_time,
+            src,
+            dst,
+            dept,
             data.parsed_params
         );
 
