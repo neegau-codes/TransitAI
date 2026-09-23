@@ -319,35 +319,43 @@ class RecommendationEngine:
 
                 legs = []
                 walking_mins = 0
+                coords = []
                 for seg in raw_segments:
-                    mode = seg.get("mode", "walk")
+                    if hasattr(seg, "to_dict"):
+                        seg_dict = seg.to_dict()
+                    elif isinstance(seg, dict):
+                        seg_dict = seg
+                    else:
+                        seg_dict = getattr(seg, "__dict__", {})
+
+                    mode = seg_dict.get("mode", "walk")
                     if mode == "walk":
-                        walking_mins += seg.get("duration", 0)
+                        walking_mins += seg_dict.get("duration", 0)
 
                     # Ensure leg format matches V2 schema
-                    dept = seg.get("departure")
-                    arr = seg.get("arrival")
+                    dept = seg_dict.get("departure")
+                    arr = seg_dict.get("arrival")
                     if not dept or not arr:
                         import re
-                        m = re.search(r'Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})', seg.get("route_name", ""))
+                        m = re.search(r'Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})', seg_dict.get("route_name", ""))
                         if m:
                             dept = dept or m.group(1)
                             arr = arr or m.group(2)
 
                     legs.append({
                         "mode": mode.upper(),
-                        "from": seg.get("source_name") or seg.get("from"),
-                        "to": seg.get("destination_name") or seg.get("to"),
+                        "from": seg_dict.get("source_name") or seg_dict.get("from"),
+                        "to": seg_dict.get("destination_name") or seg_dict.get("to"),
                         "departure": dept or None,
                         "arrival": arr or None,
-                        "duration_minutes": seg.get("duration", 0),
+                        "duration_minutes": seg_dict.get("duration", 0),
                         "fare": {
-                            "amount": seg.get("cost", 0.0),
+                            "amount": seg_dict.get("cost", 0.0),
                             "currency": "INR",
-                            "status": seg.get("status", "SCHEDULED")
+                            "status": seg_dict.get("status", "SCHEDULED")
                         },
-                        "status": seg.get("status", "ESTIMATED" if mode == "walk" else "SCHEDULED"),
-                        "source": seg.get("source", "ESTIMATED" if mode == "walk" else "KMRL")
+                        "status": seg_dict.get("status", "ESTIMATED" if mode == "walk" else "SCHEDULED"),
+                        "source": seg_dict.get("source", "ESTIMATED" if mode == "walk" else "KMRL")
                     })
 
                 v2_routes.append({

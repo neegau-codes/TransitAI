@@ -1,402 +1,326 @@
-// Global variables to store current search results
-let currentRoutes = null;
-let currentPreference = 'fastest';
+/**
+ * main.js - Core application controller for TransitAI
+ */
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    setDefaultTime();
-    loadLocations();
+import { api } from './api.js';
+import { renderRouteSummaryCards } from './components/RouteSummaryCard.js';
+import { renderJourneyTimeline } from './components/JourneyTimeline.js';
+import { renderTransitMap } from './components/TransitMap.js';
+import { 
+  renderLoadingState, 
+  renderEmptyState, 
+  renderErrorState, 
+  renderUnsupportedLocationAlert 
+} from './components/StateViews.js';
+
+let availableLocations = [];
+let currentRoutes = [];
+let selectedRouteId = null;
+let currentOptimization = 'fastest';
+
+document.addEventListener('DOMContentLoaded', async () => {
+  initModeTabs();
+  initOptimizationCards();
+  initFormInteractions();
+  await loadLocations();
 });
 
-// Set default time to current local time (HH:MM)
-function setDefaultTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('time-input').value = `${hours}:${minutes}`;
+// 1. Mode Tabs (Planner vs Ask AI)
+function initModeTabs() {
+  const plannerBtn = document.getElementById('tab-btn-planner');
+  const askaiBtn = document.getElementById('tab-btn-askai');
+  const plannerView = document.getElementById('view-planner');
+  const askaiView = document.getElementById('view-askai');
+
+  if (plannerBtn && askaiBtn && plannerView && askaiView) {
+    plannerBtn.addEventListener('click', () => switchTab('planner'));
+    askaiBtn.addEventListener('click', () => switchTab('askai'));
+  }
 }
 
-// Fetch locations list from API to populate datalist suggestions
+function switchTab(mode) {
+  const plannerBtn = document.getElementById('tab-btn-planner');
+  const askaiBtn = document.getElementById('tab-btn-askai');
+  const plannerView = document.getElementById('view-planner');
+  const askaiView = document.getElementById('view-askai');
+
+  if (mode === 'planner') {
+    plannerView.classList.remove('hidden');
+    plannerView.classList.add('flex');
+    askaiView.classList.add('hidden');
+    askaiView.classList.remove('flex');
+
+    plannerBtn.className = 'px-4 py-1.5 rounded font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 bg-deep-teal text-white shadow-xs';
+    plannerBtn.setAttribute('aria-selected', 'true');
+    askaiBtn.className = 'px-4 py-1.5 rounded font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 text-slate-sec hover:text-charcoal';
+    askaiBtn.setAttribute('aria-selected', 'false');
+  } else {
+    askaiView.classList.remove('hidden');
+    askaiView.classList.add('flex');
+    plannerView.classList.add('hidden');
+    plannerView.classList.remove('flex');
+
+    askaiBtn.className = 'px-4 py-1.5 rounded font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 bg-deep-teal text-white shadow-xs';
+    askaiBtn.setAttribute('aria-selected', 'true');
+    plannerBtn.className = 'px-4 py-1.5 rounded font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 text-slate-sec hover:text-charcoal';
+    plannerBtn.setAttribute('aria-selected', 'false');
+  }
+}
+
+// 2. Optimization Cards
+function initOptimizationCards() {
+  const opts = ['fastest', 'cheapest', 'transfers'];
+  opts.forEach(opt => {
+    const card = document.getElementById(`opt-${opt}`);
+    if (card) {
+      card.addEventListener('click', () => setOptimization(opt));
+    }
+  });
+}
+
+function setOptimization(selected) {
+  currentOptimization = selected;
+  const types = ['fastest', 'cheapest', 'transfers'];
+  types.forEach(t => {
+    const card = document.getElementById('opt-' + t);
+    const icon = document.getElementById('icon-' + t);
+    const label = card?.querySelector('span');
+
+    if (t === selected) {
+      if (card) {
+        card.className = 'p-2.5 sm:p-3 rounded border border-deep-teal bg-pale-teal text-left flex flex-col justify-between transition-colors';
+        card.setAttribute('aria-checked', 'true');
+      }
+      if (icon) icon.className = 'material-symbols-outlined text-deep-teal text-[16px] leading-none';
+      if (label) label.className = 'text-[11px] font-bold tracking-wider text-deep-teal';
+    } else {
+      if (card) {
+        card.className = 'p-2.5 sm:p-3 rounded border border-border-subtle bg-surface hover:bg-app-bg text-left flex flex-col justify-between transition-colors';
+        card.setAttribute('aria-checked', 'false');
+      }
+      if (icon) icon.className = 'material-symbols-outlined text-transparent text-[16px] leading-none';
+      if (label) label.className = 'text-[11px] font-bold tracking-wider text-slate-sec';
+    }
+  });
+}
+
+// 3. Form & Location Autocomplete
 async function loadLocations() {
-    try {
-        const response = await fetch('/api/locations');
-        const locations = await response.json();
-        
-        const datalist = document.getElementById('location-list');
-        datalist.innerHTML = '';
-        
-        // Add to datalist
-        locations.forEach(loc => {
-            const option = document.createElement('option');
-            option.value = loc.name;
-            datalist.appendChild(option);
-        });
-    } catch (e) {
-        console.error('Failed to load locations list', e);
-    }
+  try {
+    const locations = await api.getLocations();
+    availableLocations = locations;
+    populateDatalist(locations);
+  } catch (err) {
+    console.warn("Failed loading locations", err);
+  }
 }
 
-// Set preference selection (Fastest, Cheapest, Fewest Transfers)
-function setPreference(pref) {
-    currentPreference = pref;
-    
-    // Update active visual state in sidebar selector
-    const cards = {
-        'fastest': 'pref-fastest-card',
-        'cheapest': 'pref-cheapest-card',
-        'fewest_transfers': 'pref-transfers-card'
-    };
-    
-    Object.keys(cards).forEach(key => {
-        const el = document.getElementById(cards[key]);
-        if (key === pref) {
-            el.classList.add('active');
-            document.getElementById(`pref-${key}`).checked = true;
-        } else {
-            el.classList.remove('active');
-            document.getElementById(`pref-${key}`).checked = false;
-        }
+function populateDatalist(locations) {
+  const datalist = document.getElementById('locations-datalist');
+  if (!datalist) return;
+  datalist.innerHTML = locations.map(loc => `<option value="${loc.name}">${loc.type ? `[${loc.type}]` : ''}</option>`).join('');
+}
+
+function initFormInteractions() {
+  const originInput = document.getElementById('input-origin');
+  const destInput = document.getElementById('input-destination');
+  const swapBtn = document.getElementById('btn-swap-endpoints');
+  const searchBtn = document.getElementById('btn-search-routes');
+  const aiSubmitBtn = document.getElementById('btn-analyse-ai');
+  const aiInput = document.getElementById('ai-query-input');
+  const samplePromptBtn = document.getElementById('btn-sample-prompt');
+
+  if (swapBtn && originInput && destInput) {
+    swapBtn.addEventListener('click', () => {
+      const temp = originInput.value;
+      originInput.value = destInput.value;
+      destInput.value = temp;
+      hideValidationAlert();
     });
-}
+  }
 
-// Populate AI text area from examples tags
-function useExample(el) {
-    document.getElementById('ai-query-input').value = el.textContent;
-}
+  if (searchBtn) {
+    searchBtn.addEventListener('click', handlePlannerSearch);
+  }
 
-// Show/Hide Panels helper
-function showPanel(panelId) {
-    document.getElementById(panelId).classList.remove('hidden');
-}
+  if (aiSubmitBtn) {
+    aiSubmitBtn.addEventListener('click', handleAISearch);
+  }
 
-function hidePanel(panelId) {
-    document.getElementById(panelId).classList.add('hidden');
-}
+  if (samplePromptBtn && aiInput) {
+    samplePromptBtn.addEventListener('click', () => {
+      aiInput.value = "naale 5 manikku munpe aluva ninn thrissur ethande";
+    });
+  }
 
-// Submit structured search form
-async function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    const source = document.getElementById('source-input').value.strip ? document.getElementById('source-input').value.strip() : document.getElementById('source-input').value.trim();
-    const destination = document.getElementById('dest-input').value.strip ? document.getElementById('dest-input').value.strip() : document.getElementById('dest-input').value.trim();
-    const departureTime = document.getElementById('time-input').value;
-    
-    if (!source || !destination) return;
-    
-    // Show loading, reset panels
-    hidePanel('welcome-panel');
-    hidePanel('results-panel');
-    hidePanel('error-panel');
-    showPanel('loading-panel');
-    
-    try {
-        const response = await fetch('/api/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                source: source,
-                destination: destination,
-                departure_time: departureTime
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            showError('Search Error', data.error);
-            return;
-        }
-        
-        currentRoutes = data;
-        displayResults(source, destination, departureTime, null);
-        
-    } catch (e) {
-        showError('Connection Error', 'Failed to connect to the backend routing engine. Make sure the server is running.');
+  [originInput, destInput].forEach(inp => {
+    if (inp) {
+      inp.addEventListener('input', () => hideValidationAlert());
     }
+  });
 }
 
-// Submit Natural Language AI Query
-async function handleAISubmit() {
-    const query = document.getElementById('ai-query-input').value.trim();
-    if (!query) return;
-    
-    // Show loading, reset panels
-    hidePanel('welcome-panel');
-    hidePanel('results-panel');
-    hidePanel('error-panel');
-    showPanel('loading-panel');
-    
-    try {
-        const response = await fetch('/api/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: query })
-        });
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            showError('AI Extraction Error', data.error);
-            // If we successfully extracted some parts, sync them anyway so user can complete it
-            if (data.parsed_params) {
-                syncSidebarFields(data.parsed_params);
-            }
-            return;
-        }
-        
-        currentRoutes = data;
-        
-        // Sync Sidebar UI inputs with parsed variables
-        if (data.parsed_params) {
-            syncSidebarFields(data.parsed_params);
-        }
+function hideValidationAlert() {
+  const alertBox = document.getElementById('validation-alert');
+  if (alertBox) alertBox.classList.add('hidden');
+}
 
-        const src = data.parsed_params ? data.parsed_params.source : (data.intent ? data.intent.origin : '');
-        const dst = data.parsed_params ? data.parsed_params.destination : (data.intent ? data.intent.destination : '');
-        const dept = data.parsed_params ? data.parsed_params.departure_time : (data.intent ? data.intent.departure_time : '');
-        
-        // Render results and highlight AI parsed badge details
-        displayResults(
-            src,
-            dst,
-            dept,
-            data.parsed_params
-        );
-        
-    } catch (e) {
-        showError('AI Connection Error', 'Failed to connect to the AI query processing engine.');
+function showUnsupportedLocationError() {
+  const alertBox = document.getElementById('validation-alert');
+  if (alertBox) {
+    alertBox.innerHTML = renderUnsupportedLocationAlert();
+    alertBox.classList.remove('hidden');
+  }
+}
+
+// 4. Planner Search Handler
+async function handlePlannerSearch() {
+  const originInput = document.getElementById('input-origin');
+  const destInput = document.getElementById('input-destination');
+  const dateInput = document.getElementById('input-date');
+  const timeInput = document.getElementById('input-time');
+
+  const origin = originInput?.value?.trim();
+  const dest = destInput?.value?.trim();
+  const date = dateInput?.value || new Date().toISOString().split('T')[0];
+  const time = timeInput?.value || "10:00";
+
+  hideValidationAlert();
+
+  if (!origin || !dest) {
+    showUnsupportedLocationError();
+    return;
+  }
+
+  showResultsContainer();
+  renderState(renderLoadingState("Searching transit routes..."));
+
+  try {
+    const res = await api.getRoutes(origin, dest, date, time, currentOptimization.toUpperCase());
+    
+    if (!res || !res.routes || res.routes.length === 0) {
+      renderState(renderEmptyState(`No routes found from ${origin} to ${dest}`));
+      return;
     }
-}
 
-// Helper to fill sidebar form fields from NLP parsed details
-function syncSidebarFields(params) {
-    if (params.source) document.getElementById('source-input').value = params.source;
-    if (params.destination) document.getElementById('dest-input').value = params.destination;
-    if (params.departure_time) document.getElementById('time-input').value = params.departure_time;
-    if (params.preference) setPreference(params.preference);
-}
-
-// Helper to display search errors
-function showError(title, desc) {
-    hidePanel('loading-panel');
-    hidePanel('results-panel');
-    
-    document.getElementById('error-title').textContent = title;
-    document.getElementById('error-desc').textContent = desc;
-    showPanel('error-panel');
-}
-
-// Render search results on UI
-function displayResults(source, destination, time, aiParsedParams) {
-    hidePanel('loading-panel');
-    hidePanel('error-panel');
-    
-    // Update summary header
-    document.getElementById('route-direction').innerHTML = `
-        ${source} <i class="fa-solid fa-arrow-right-long" style="color: var(--color-primary); margin: 0 0.25rem;"></i> ${destination}
-    `;
-    document.getElementById('summary-time').textContent = time;
-    
-    // Display budget constraint badge if specified
-    const budgetBadge = document.getElementById('summary-budget-badge');
-    if (aiParsedParams && aiParsedParams.budget) {
-        document.getElementById('summary-budget').textContent = aiParsedParams.budget;
-        budgetBadge.classList.remove('hidden');
+    currentRoutes = res.routes;
+    selectedRouteId = currentRoutes[0].route_id;
+    renderResultsView(res);
+  } catch (err) {
+    if (err.status === 422 || err.message?.includes("Location") || err.message?.includes("connect")) {
+      showUnsupportedLocationError();
+      renderState(renderErrorState("Location not supported yet", "We couldn't connect this location to available transit data. Please select another station hub."));
     } else {
-        budgetBadge.classList.add('hidden');
+      renderState(renderErrorState("Unable to load routes", err.message || "Please check backend connection and try again."));
     }
-    
-    // Display AI notice badge
-    const aiNotice = document.getElementById('ai-notice');
-    if (aiParsedParams) {
-        let note = `AI Parsed Context: Preference=${aiParsedParams.preference}`;
-        if (aiParsedParams.budget) note += `, Budget=₹${aiParsedParams.budget}`;
-        document.getElementById('ai-notice-text').textContent = note;
-        aiNotice.classList.remove('hidden');
-    } else {
-        aiNotice.classList.add('hidden');
-    }
-
-    // Populate route cards
-    populateRouteCard('fastest', currentRoutes.fastest);
-    populateRouteCard('cheapest', currentRoutes.cheapest);
-    populateRouteCard('fewest_transfers', currentRoutes.fewest_transfers);
-    
-    // Switch to active card based on preference
-    let defaultOption = currentPreference;
-    if (defaultOption === 'fewest_transfers') defaultOption = 'fewest_transfers';
-    
-    selectRouteOption(defaultOption);
-    showPanel('results-panel');
+  }
 }
 
-// Helper to render card details
-function populateRouteCard(cardKey, route) {
-    document.getElementById(`${cardKey}-cost`).textContent = `₹${route.total_cost}`;
-    
-    // Calculate display duration (hours + mins)
-    const totalMin = route.total_duration;
-    if (totalMin >= 60) {
-        const h = Math.floor(totalMin / 60);
-        const m = totalMin % 60;
-        document.getElementById(`${cardKey}-dur`).innerHTML = `${h} <span>h</span> ${m} <span>m</span>`;
-    } else {
-        document.getElementById(`${cardKey}-dur`).innerHTML = `${totalMin} <span>mins</span>`;
+// 5. Ask AI Search Handler
+async function handleAISearch() {
+  const aiInput = document.getElementById('ai-query-input');
+  const query = aiInput?.value?.trim();
+
+  if (!query) {
+    alert("Please enter a travel query.");
+    return;
+  }
+
+  showResultsContainer();
+  renderState(renderLoadingState("Analyzing natural language travel query with AI..."));
+
+  try {
+    const res = await api.search(query);
+
+    if (res.status === "UNSUPPORTED_LOCATION" || !res.routes || res.routes.length === 0) {
+      if (res.intent?.origin) {
+        renderState(renderEmptyState(`No transit routes available for ${res.intent.origin} → ${res.intent.destination}`));
+      } else {
+        showUnsupportedLocationError();
+        renderState(renderErrorState("Location not supported yet", "We couldn't connect this location to available transit data. Please specify supported Kerala hubs (e.g. Aluva, Thrissur, Ernakulam)."));
+      }
+      return;
     }
-    
-    // Transfer count
-    const tCount = route.transfers;
-    const tText = tCount === 1 ? '1 Transfer' : `${tCount} Transfers`;
-    document.getElementById(`${cardKey}-transfers`).textContent = tText;
-    
-    // Render modes mini icons
-    const modesDiv = document.getElementById(`${cardKey}-modes`);
-    modesDiv.innerHTML = '';
-    
-    // Get unique modes in order (skipping walks if we have other modes)
-    const modes = [];
-    route.segments.forEach(seg => {
-        if (!modes.includes(seg.mode)) {
-            modes.push(seg.mode);
-        }
+
+    currentRoutes = res.routes;
+    selectedRouteId = currentRoutes[0].route_id;
+    renderResultsView(res);
+  } catch (err) {
+    renderState(renderErrorState("Unable to load routes", err.message || "Failed to process AI query."));
+  }
+}
+
+// 6. Render Results Page
+function showResultsContainer() {
+  const resultsSection = document.getElementById('results-section');
+  if (resultsSection) {
+    resultsSection.classList.remove('hidden');
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function renderState(htmlContent) {
+  const contentBox = document.getElementById('results-content-area');
+  if (contentBox) contentBox.innerHTML = htmlContent;
+}
+
+function renderResultsView(response) {
+  const contentBox = document.getElementById('results-content-area');
+  if (!contentBox) return;
+
+  const routes = response.routes;
+  const selectedRoute = routes.find(r => r.route_id === selectedRouteId) || routes[0];
+
+  const summaryCardsHtml = renderRouteSummaryCards(routes, selectedRoute.route_id, (routeId) => {
+    selectedRouteId = routeId;
+    renderResultsView(response);
+  });
+
+  const timelineHtml = renderJourneyTimeline(selectedRoute);
+  const mapHtml = renderTransitMap(selectedRoute);
+
+  contentBox.innerHTML = `
+    <div class="flex flex-col gap-5 w-full">
+      <!-- 1. Top Summary Header -->
+      <section class="w-full bg-surface border border-border-subtle rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 font-display font-bold text-lg text-text-primary bg-surface-muted px-4 py-2 rounded-md border border-border-subtle">
+            <span>${selectedRoute.legs[0]?.from || response.intent?.origin || 'Origin'}</span>
+            <span class="material-symbols-outlined text-text-muted text-[18px]">arrow_forward</span>
+            <span>${selectedRoute.legs[selectedRoute.legs.length - 1]?.to || response.intent?.destination || 'Destination'}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-sec">
+          <span class="px-2.5 py-1 rounded bg-surface border border-border-subtle">
+            Found ${routes.length} Multimodal Option${routes.length > 1 ? 's' : ''}
+          </span>
+        </div>
+      </section>
+
+      <!-- 2. Three Recommendation Cards -->
+      ${summaryCardsHtml}
+
+      <!-- 3. Timeline (Left) & Map (Right) -->
+      <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div class="lg:col-span-6 flex flex-col gap-4">
+          ${timelineHtml}
+        </div>
+        <div class="lg:col-span-6">
+          ${mapHtml}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Attach card click handlers
+  const cards = contentBox.querySelectorAll('.route-summary-card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const rId = card.getAttribute('data-route-id');
+      if (rId) {
+        selectedRouteId = rId;
+        renderResultsView(response);
+      }
     });
-    
-    modes.forEach(mode => {
-        const iconClass = getModeIcon(mode);
-        const iconDiv = document.createElement('div');
-        iconDiv.className = `mode-mini-icon ${mode}`;
-        iconDiv.innerHTML = `<i class="${iconClass}"></i>`;
-        modesDiv.appendChild(iconDiv);
-    });
-}
-
-// Get mode-specific FontAwesome class
-function getModeIcon(mode) {
-    switch (mode) {
-        case 'metro': return 'fa-solid fa-subway';
-        case 'train': return 'fa-solid fa-train';
-        case 'bus': return 'fa-solid fa-bus';
-        case 'walk': return 'fa-solid fa-person-walking';
-        default: return 'fa-solid fa-route';
-    }
-}
-
-// Handle route selection click
-function selectRouteOption(optionKey) {
-    // Set active class on cards
-    const options = ['fastest', 'cheapest', 'fewest_transfers'];
-    options.forEach(opt => {
-        const card = document.getElementById(`card-${opt}`);
-        if (opt === optionKey) {
-            card.classList.add('active');
-        } else {
-            card.classList.remove('active');
-        }
-    });
-    
-    // Update timeline panel titles
-    const titleText = optionKey === 'fastest' ? 'Fastest Route' :
-                     optionKey === 'cheapest' ? 'Cheapest Route' : 'Fewest Transfers';
-    document.getElementById('details-route-type').textContent = titleText;
-    
-    const route = currentRoutes[optionKey];
-    document.getElementById('details-segment-count').textContent = route.segments.length;
-    
-    renderTimeline(route);
-}
-
-// Render vertical timeline of segments
-function renderTimeline(route) {
-    const timeline = document.getElementById('route-timeline');
-    timeline.innerHTML = '';
-    
-    if (!route.segments || route.segments.length === 0) return;
-    
-    const segments = route.segments;
-    
-    // Step-by-step rendering
-    for (let i = 0; i < segments.length; i++) {
-        const seg = segments[i];
-        
-        // 1. Render Source Station Node of this segment
-        const isOrigin = (i === 0);
-        const stepClass = isOrigin ? 'timeline-step origin' : 'timeline-step';
-        
-        // Parse time: E.g., route_name can contain "(Dep: 08:30, Arr: 08:48)"
-        // Let's parse departure and arrival times from segment details if possible
-        let depTime = "";
-        let arrTime = "";
-        const timeMatch = seg.route_name.match(/\(Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})\)/);
-        if (timeMatch) {
-            depTime = timeMatch[1];
-            arrTime = timeMatch[2];
-        }
-        
-        const sourceStep = document.createElement('div');
-        sourceStep.className = stepClass;
-        sourceStep.innerHTML = `
-            <div class="timeline-node"></div>
-            <div class="timeline-content">
-                <div class="timeline-header">
-                    <span class="station-name">${seg.source_name}</span>
-                    <span class="step-time">${depTime ? `<i class="fa-regular fa-clock"></i> ${depTime}` : ''}</span>
-                </div>
-            </div>
-        `;
-        timeline.appendChild(sourceStep);
-        
-        // 2. Render Travel Link (connecting segment card)
-        const travelLink = document.createElement('div');
-        travelLink.className = 'timeline-step travel-link';
-        
-        // Clean route name (remove Dep/Arr time details)
-        const cleanRouteName = seg.route_name.split(' (Dep:')[0];
-        
-        const modeIcon = getModeIcon(seg.mode);
-        
-        travelLink.innerHTML = `
-            <div class="travel-segment-card">
-                <div class="segment-mode-icon ${seg.mode}">
-                    <i class="${modeIcon}"></i>
-                </div>
-                <div class="segment-info">
-                    <div class="segment-route-name">${cleanRouteName}</div>
-                    <div class="segment-details-row">
-                        <div class="segment-detail-item">
-                            <i class="fa-regular fa-clock"></i>
-                            <span>${seg.duration} mins</span>
-                        </div>
-                        ${seg.mode !== 'walk' ? `
-                        <div class="segment-detail-item">
-                            <i class="fa-solid fa-indian-rupee-sign"></i>
-                            <span>₹${seg.cost}</span>
-                        </div>
-                        ` : ''}
-                    </div>
-                    ${seg.mode !== 'walk' ? `
-                    <div class="segment-provider">
-                        Provider: ${seg.provider}
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-        timeline.appendChild(travelLink);
-        
-        // 3. If it is the last segment, render the final Destination Station Node
-        if (i === segments.length - 1) {
-            const destStep = document.createElement('div');
-            destStep.className = 'timeline-step destination';
-            destStep.innerHTML = `
-                <div class="timeline-node"></div>
-                <div class="timeline-content">
-                    <div class="timeline-header">
-                        <span class="station-name">${seg.destination_name}</span>
-                        <span class="step-time">${arrTime ? `<i class="fa-regular fa-clock"></i> ${arrTime}` : ''}</span>
-                    </div>
-                </div>
-            `;
-            timeline.appendChild(destStep);
-        }
-    }
+  });
 }

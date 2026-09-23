@@ -397,9 +397,13 @@ def search_routes():
         if "segments" not in vr:
             vr["segments"] = vr.get("legs", [])
 
-    all_routes = [r for r in [norm_fastest, norm_cheapest, norm_fewest] if r is not None]
+    all_routes = v2_routes if v2_routes else [r for r in [norm_fastest, norm_cheapest, norm_fewest] if r is not None]
 
     recommendations_obj = {
+        "BEST": v2_routes[0] if len(v2_routes) > 0 else norm_fastest,
+        "FASTEST": norm_fastest,
+        "CHEAPEST": norm_cheapest,
+        "LEAST WALKING": v2_routes[3] if len(v2_routes) > 3 else (v2_routes[0] if len(v2_routes) > 0 else norm_fastest),
         "fastest": norm_fastest,
         "cheapest": norm_cheapest,
         "fewest_transfers": norm_fewest

@@ -1,382 +1,316 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TransitAI is an AI-powered multi-modal travel planner for Kerala, combining Kochi Metro, Indian Railways, and KSRTC bus routes into a single optimized routing engine.">
-    <title>TransitAI - Modern Multi-Modal Travel Planner</title>
-    <!-- Stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <!-- Map Custom Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TransitAI — Public Transit Route Planner</title>
+  
+  <!-- Fonts & Material Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'deep-teal': '#087F73',
+            'deep-teal-hover': '#06665D',
+            'fresh-teal': '#0F9D8A',
+            'pale-teal': '#DDF3EF',
+            'app-bg': '#F7F8F6',
+            'surface': '#FFFFFF',
+            'border-subtle': '#E2E5E2',
+            'border-strong': '#CBD0CB',
+            'charcoal': '#18201E',
+            'slate-sec': '#66716D',
+            'muted-slate': '#98A29F',
+            'primary': '#087F73',
+            'primary-container': '#E6F3F1',
+            'on-primary': '#FFFFFF',
+            'surface-muted': '#F3F5F2',
+            'text-primary': '#1A201E',
+            'text-muted': '#52605C',
+            'text-faint': '#82908C',
+            'accent-rail': '#005696',
+            'accent-metro': '#087F73'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base {
+      html, body {
+        background-color: #F7F8F6;
+        color: #18201E;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  </style>
 </head>
-<body>
-    <!-- Background glow shapes -->
-    <div class="bg-glow bg-glow-1"></div>
-    <div class="bg-glow bg-glow-2"></div>
-    <div class="bg-glow bg-glow-3"></div>
+<body class="bg-app-bg text-charcoal antialiased min-h-screen flex flex-col">
 
-    <div class="app-container">
-        <!-- Header -->
-        <header class="glass-header">
-            <div class="logo-container">
-                <div class="logo-icon-wrapper">
-                    <i class="fa-solid fa-route logo-icon"></i>
-                </div>
-                <div>
-                    <h1 class="brand-name">Transit<span class="brand-suffix">AI</span></h1>
-                    <span class="subtitle">Kerala Multi-Modal Travel Planner</span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <div class="badge badge-premium">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>AI-Powered Routing</span>
-                </div>
-                <div class="badge badge-status">
-                    <span class="status-indicator"></span>
-                    <span>v1.0 (Live Demo)</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Dashboard Grid -->
-        <div class="dashboard-grid">
-            
-            <!-- Sidebar: Search Console -->
-            <aside class="glass-panel search-sidebar">
-                <div class="sidebar-header">
-                    <div class="sidebar-title">
-                        <i class="fa-solid fa-sliders text-primary"></i>
-                        <span>Search Console</span>
-                    </div>
-                </div>
-
-                <!-- Dual-mode Tab Selector -->
-                <div class="search-mode-tabs" role="tablist" aria-label="Search mode">
-                    <button type="button" class="tab-btn active" id="tab-btn-structured"
-                            role="tab" aria-selected="true" aria-controls="structured-search-container"
-                            onclick="switchSearchMode('structured')">
-                        <i class="fa-solid fa-list-check"></i>
-                        <span>Planner Form</span>
-                    </button>
-                    <button type="button" class="tab-btn" id="tab-btn-ai"
-                            role="tab" aria-selected="false" aria-controls="ai-search-container"
-                            onclick="switchSearchMode('ai')">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>Ask AI</span>
-                    </button>
-                </div>
-                
-                <!-- Tab 1: Structured Search Form -->
-                <div id="structured-search-container" class="search-tab-content">
-                    <form id="search-form" onsubmit="handleFormSubmit(event)">
-                        <div class="form-group">
-                            <label for="source-input">From Station / Hub</label>
-                            <div class="input-container">
-                                <i class="fa-solid fa-circle-dot input-icon text-cyan"></i>
-                                <input type="text" id="source-input" class="form-input" placeholder="Origin (e.g. Aluva)" required list="location-list">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="dest-input">To Station / Hub</label>
-                            <div class="input-container">
-                                <i class="fa-solid fa-location-dot input-icon text-magenta"></i>
-                                <input type="text" id="dest-input" class="form-input" placeholder="Destination (e.g. Kaloor)" required list="location-list">
-                            </div>
-                        </div>
-                        
-                        <datalist id="location-list">
-                            <!-- Dynamic locations list loaded on startup -->
-                        </datalist>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="date-input">Departure Date</label>
-                                <div class="input-container">
-                                    <i class="fa-solid fa-calendar input-icon"></i>
-                                    <input type="date" id="date-input" class="form-input" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="time-input">Departure Time</label>
-                                <div class="input-container">
-                                    <i class="fa-solid fa-clock input-icon"></i>
-                                    <input type="time" id="time-input" class="form-input" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Preference selection cards -->
-                        <div class="form-group">
-                            <label>Optimize Route For</label>
-                            <div class="pref-selector">
-                                <div class="pref-option active" id="pref-fastest-card" onclick="setPreference('fastest')">
-                                    <input type="radio" id="pref-fastest" name="preference" value="fastest" checked>
-                                    <div class="pref-option-content">
-                                        <div class="pref-radio-custom"><i class="fa-solid fa-bolt"></i></div>
-                                        <span class="pref-option-label">Fastest</span>
-                                    </div>
-                                </div>
-                                <div class="pref-option" id="pref-cheapest-card" onclick="setPreference('cheapest')">
-                                    <input type="radio" id="pref-cheapest" name="preference" value="cheapest">
-                                    <div class="pref-option-content">
-                                        <div class="pref-radio-custom"><i class="fa-solid fa-wallet"></i></div>
-                                        <span class="pref-option-label">Cheapest</span>
-                                    </div>
-                                </div>
-                                <div class="pref-option" id="pref-transfers-card" onclick="setPreference('fewest_transfers')">
-                                    <input type="radio" id="pref-transfers" name="preference" value="fewest_transfers">
-                                    <div class="pref-option-content">
-                                        <div class="pref-radio-custom"><i class="fa-solid fa-shuffle"></i></div>
-                                        <span class="pref-option-label">Few Transfers</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn-primary btn-search-submit">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <span>Search Routes</span>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Tab 2: AI Natural Language Search -->
-                <div id="ai-search-container" class="search-tab-content hidden">
-                    <div class="ai-console">
-                        <div class="ai-console-header">
-                            <i class="fa-solid fa-sparkles ai-pulse-icon"></i>
-                            <span>Natural Language AI Engine</span>
-                        </div>
-                        <p class="ai-console-desc">
-                            Describe your trip details in natural language. The AI parser will extract the constraints automatically.
-                        </p>
-                        <textarea id="ai-query-input" class="ai-textarea" placeholder="e.g. I want to travel from Aluva to Kaloor before 10 AM under ₹100"></textarea>
-                        
-                        <button type="button" class="btn-primary btn-ai-submit" onclick="handleAISubmit()">
-                            <i class="fa-solid fa-microchip"></i>
-                            <span>Analyze Query</span>
-                        </button>
-                        
-                        <div class="ai-query-examples">
-                            <span class="examples-title">Suggested Prompts:</span>
-                            <div class="examples-container">
-                                <span class="ai-example-tag" onclick="useExample(this)">reach Kaloor before 11 AM under ₹100</span>
-                                <span class="ai-example-tag" onclick="useExample(this)">fastest route from Kalamassery to Vytila</span>
-                                <span class="ai-example-tag" onclick="useExample(this)">cheapest to Tripunithura from Aluva</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Visual Mock Tests for Leaflet & OSM -->
-                <div class="sidebar-footer-tests">
-                    <div class="test-suite-header">
-                        <i class="fa-solid fa-map-location-dot text-secondary"></i>
-                        <span>Visual Map Test Suite</span>
-                    </div>
-                    <div class="test-buttons-grid">
-                        <button type="button" class="btn-test test-metro" onclick="loadMockTestRoute('Aluva_Kaloor')">
-                            <i class="fa-solid fa-subway"></i>
-                            <span>Aluva &rarr; Kaloor (Metro)</span>
-                        </button>
-                        <button type="button" class="btn-test test-bus" onclick="loadMockTestRoute('Aluva_Thrissur')">
-                            <i class="fa-solid fa-train"></i>
-                            <span>Aluva &rarr; Thrissur (Multi)</span>
-                        </button>
-                        <button type="button" class="btn-test test-multi" onclick="loadMockTestRoute('Kochi_Trivandrum')">
-                            <i class="fa-solid fa-compass"></i>
-                            <span>Kochi &rarr; Trivandrum (Long)</span>
-                        </button>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Main Panel: Results & Map -->
-            <main class="results-area">
-                
-                <!-- Welcome Panel -->
-                <div id="welcome-panel" class="glass-panel welcome-panel">
-                    <div class="welcome-icon-container">
-                        <i class="fa-solid fa-compass welcome-icon-glow"></i>
-                    </div>
-                    <h2>Explore Kerala Seamlessly</h2>
-                    <p>
-                        TransitAI combines Kochi Metro, Indian Railways, and KSRTC Bus timetables into a single optimized multi-modal routing engine. Use the form or conversational query console on the left to plan your route.
-                    </p>
-                    <div class="welcome-divider"></div>
-                    <div class="supported-stations-section">
-                        <h4>Supported Hubs & Terminals</h4>
-                        <div class="badges-scroll-container">
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Aluva</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Kalamassery</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Edappally</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Kaloor</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Ernakulam Town</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Ernakulam Jn</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Vytila Mobility Hub</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Tripunithura</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Shoranur Jn</span>
-                            <span class="badge badge-station"><i class="fa-solid fa-location-dot"></i> Angamaly</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Loading State -->
-                <div id="loading-panel" class="glass-panel spinner-container hidden">
-                    <div class="loading-animation-wrapper">
-                        <div class="spinner"></div>
-                        <div class="spinner-ring"></div>
-                    </div>
-                    <div>
-                        <h3>Analyzing Route Network...</h3>
-                        <p>Building NetworkX graph & matching timetables</p>
-                    </div>
-                </div>
-
-                <!-- Error Box -->
-                <div id="error-panel" class="error-box hidden">
-                    <div class="error-icon-wrapper">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-                    <div>
-                        <strong id="error-title">Search Error</strong>
-                        <p id="error-desc"></p>
-                    </div>
-                </div>
-
-                <!-- Results Panel (Visible after search) -->
-                <div id="results-panel" class="hidden">
-                    
-                    <!-- Search Summary / AI interpretation badge -->
-                    <div class="glass-panel search-summary-bar">
-                        <div class="summary-meta-left">
-                            <span id="route-direction" class="route-direction-text">
-                                Aluva <i class="fa-solid fa-arrow-right-long text-primary"></i> Kaloor
-                            </span>
-                            <span id="ai-notice" class="badge badge-ai hidden">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                <span id="ai-notice-text">AI Parsed Context</span>
-                            </span>
-                        </div>
-                        <div class="summary-badges">
-                            <span class="badge badge-summary-info"><i class="fa-solid fa-clock"></i> <span id="summary-time">08:30</span></span>
-                            <span class="badge badge-budget hidden" id="summary-budget-badge"><i class="fa-solid fa-indian-rupee-sign"></i> Max: <span id="summary-budget">100</span></span>
-                        </div>
-                    </div>
-
-                    <!-- Comparison Tabs (Route Cards) -->
-                    <div class="comparison-tabs">
-                        <!-- Fastest -->
-                        <div class="route-card fastest active" id="card-fastest" onclick="selectRouteOption('fastest')">
-                            <div class="card-glow"></div>
-                            <div class="card-header">
-                                <span class="card-title">Fastest</span>
-                                <span class="card-cost" id="fastest-cost">₹30</span>
-                            </div>
-                            <div class="card-duration" id="fastest-dur">15 <span>mins</span></div>
-                            <div class="card-transfers">
-                                <i class="fa-solid fa-circle-nodes"></i>
-                                <span id="fastest-transfers">1 Transfer</span>
-                            </div>
-                            <div class="card-modes" id="fastest-modes"></div>
-                        </div>
-
-                        <!-- Cheapest -->
-                        <div class="route-card cheapest" id="card-cheapest" onclick="selectRouteOption('cheapest')">
-                            <div class="card-glow"></div>
-                            <div class="card-header">
-                                <span class="card-title">Cheapest</span>
-                                <span class="card-cost" id="cheapest-cost">₹15</span>
-                            </div>
-                            <div class="card-duration" id="cheapest-dur">22 <span>mins</span></div>
-                            <div class="card-transfers">
-                                <i class="fa-solid fa-circle-nodes"></i>
-                                <span id="cheapest-transfers">0 Transfers</span>
-                            </div>
-                            <div class="card-modes" id="cheapest-modes"></div>
-                        </div>
-
-                        <!-- Fewest Transfers -->
-                        <div class="route-card fewest-transfers" id="card-fewest_transfers" onclick="selectRouteOption('fewest_transfers')">
-                            <div class="card-glow"></div>
-                            <div class="card-header">
-                                <span class="card-title">Few Transfers</span>
-                                <span class="card-cost" id="fewest_transfers-cost">₹28</span>
-                            </div>
-                            <div class="card-duration" id="fewest_transfers-dur">40 <span>mins</span></div>
-                            <div class="card-transfers">
-                                <i class="fa-solid fa-circle-nodes"></i>
-                                <span id="fewest_transfers-transfers">0 Transfers</span>
-                            </div>
-                            <div class="card-modes" id="fewest_transfers-modes"></div>
-                        </div>
-                    </div>
-
-                    <!-- Leaflet OSM Map visualizer -->
-                    <div class="map-wrapper glass-panel">
-                        <div id="map"></div>
-                        
-                        <!-- Floating Legend -->
-                        <div class="map-floating-legend glass-panel">
-                            <div class="legend-title">Modes</div>
-                            <div class="legend-item"><span class="legend-color metro"></span> Metro</div>
-                            <div class="legend-item"><span class="legend-color train"></span> Train</div>
-                            <div class="legend-item"><span class="legend-color bus"></span> Bus</div>
-                            <div class="legend-item"><span class="legend-color walk"></span> Walk</div>
-                        </div>
-
-                        <!-- Center Route Control -->
-                        <button class="map-center-btn glass-panel" onclick="centerMapRoute()" title="Center Route">
-                            <i class="fa-solid fa-location-crosshairs"></i>
-                        </button>
-                    </div>
-
-                    <!-- Timeline Details Panel -->
-                    <div class="glass-panel details-panel">
-                        <div class="details-title">
-                            <h3>
-                                <i class="fa-solid fa-route text-primary"></i>
-                                <span id="details-route-type">Fastest Route</span> Journey Details
-                            </h3>
-                            <span class="badge badge-segments-count"><span id="details-segment-count">3</span> segments</span>
-                        </div>
-                        
-                        <!-- Dynamic Vertical Timeline -->
-                        <div class="timeline" id="route-timeline">
-                            <!-- Timeline steps inserted dynamically -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Provider Integration Docs Box -->
-                <div class="glass-panel docs-panel">
-                    <h4 class="docs-title">
-                        <i class="fa-solid fa-circle-info text-secondary"></i>
-                        Future API Integration Architecture
-                    </h4>
-                    <p>
-                        TransitAI is architected to integrate real-time APIs (like NTES or KMRL ticketing). Simply subclass the <code>TransportProvider</code> interface in the <code>providers/</code> directory to link actual transport telemetry.
-                    </p>
-                    <a href="https://github.com/Kochi-Metro/rail-planner" target="_blank" class="docs-link">
-                        <span>Read Integration Documentation</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
-                </div>
-            </main>
+  <!-- TOP APP BAR -->
+  <header class="w-full bg-surface border-b border-border-subtle sticky top-0 z-40">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-6">
+        <a href="#" class="flex items-center gap-2 text-deep-teal font-display font-bold text-xl tracking-tight">
+          <span class="material-symbols-outlined text-[26px]">directions_transit</span>
+          <span>TransitAI</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-sec">
+          <a href="#" class="px-3 py-1.5 rounded text-charcoal bg-app-bg font-semibold">Route Planner</a>
+          <a href="#" class="px-3 py-1.5 rounded hover:text-charcoal hover:bg-app-bg transition-colors">Network Status</a>
+          <a href="#" class="px-3 py-1.5 rounded hover:text-charcoal hover:bg-app-bg transition-colors">Fares & Passes</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded border border-border-subtle bg-surface text-xs font-medium text-slate-sec">
+          <span class="material-symbols-outlined text-slate-sec text-[16px]">location_on</span>
+          <span class="text-charcoal font-semibold">Kerala Transit Corridor</span>
         </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+    
+    <!-- CORE 2-COLUMN APP VIEW -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: CONSOLE (PLANNER / ASK AI) -->
+      <div class="lg:col-span-7 flex flex-col gap-5">
+        <div>
+          <h1 class="font-display font-bold text-2xl sm:text-3xl tracking-tight text-charcoal">
+            TransitAI
+          </h1>
+          <div class="text-xs font-medium text-slate-sec mt-1 tracking-normal flex items-center gap-2">
+            <span>Multi-Modal Journey Routing for Kerala</span>
+            <span class="h-1 w-1 rounded-full bg-deep-teal inline-block"></span>
+            <span class="text-deep-teal">Kochi Metro • Railways • KSRTC</span>
+          </div>
+
+          <!-- Mode Selector Tabs -->
+          <div class="mt-4 inline-flex p-1 bg-app-bg border border-border-subtle rounded-md" role="tablist">
+            <button id="tab-btn-planner" role="tab" aria-selected="true" class="px-4 py-1.5 rounded font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 bg-deep-teal text-white shadow-xs">
+              <span class="material-symbols-outlined text-[18px]">alt_route</span>
+              <span>Planner</span>
+            </button>
+            <button id="tab-btn-askai" role="tab" aria-selected="false" class="px-4 py-1.5 rounded font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 text-slate-sec hover:text-charcoal">
+              <span class="material-symbols-outlined text-[18px]">short_text</span>
+              <span>Ask AI</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONSOLE VIEW 1: PLANNER CONSOLE -->
+        <div id="view-planner" class="bg-surface border border-border-subtle rounded-md p-5 sm:p-6 flex flex-col gap-5 shadow-xs">
+          
+          <!-- Origin & Destination Inputs -->
+          <div class="flex flex-col gap-3 relative">
+            
+            <!-- Origin (From) Search Field -->
+            <div class="relative">
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-origin" class="text-xs font-semibold text-slate-sec uppercase tracking-wider">From (Origin)</label>
+                <span class="text-[11px] text-muted-slate">Station, stop or place</span>
+              </div>
+              <div class="relative flex items-center">
+                <span class="absolute left-3 text-deep-teal material-symbols-outlined text-[18px]">trip_origin</span>
+                <input id="input-origin" type="text" list="locations-datalist" value="Aluva" placeholder="Enter station name or hub..." class="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-subtle rounded text-sm text-charcoal font-medium placeholder-muted-slate focus:border-deep-teal focus:ring-1 focus:ring-deep-teal outline-none transition-colors" />
+              </div>
+            </div>
+
+            <!-- Swap Button -->
+            <div class="flex justify-end -my-1.5 pr-2 z-10">
+              <button id="btn-swap-endpoints" type="button" title="Reverse origin and destination" class="inline-flex items-center justify-center w-7 h-7 rounded border border-border-subtle bg-surface hover:bg-app-bg text-slate-sec hover:text-charcoal transition-colors">
+                <span class="material-symbols-outlined text-[16px]">swap_vert</span>
+              </button>
+            </div>
+
+            <!-- Destination (To) Search Field -->
+            <div class="relative">
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-destination" class="text-xs font-semibold text-slate-sec uppercase tracking-wider">To (Destination)</label>
+                <span class="text-[11px] text-muted-slate">End station or hub</span>
+              </div>
+              <div class="relative flex items-center">
+                <span class="absolute left-3 text-charcoal material-symbols-outlined text-[18px]">location_on</span>
+                <input id="input-destination" type="text" list="locations-datalist" value="Thrissur" placeholder="Where are you travelling to?" class="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-subtle rounded text-sm text-charcoal font-medium placeholder-muted-slate focus:border-deep-teal focus:ring-1 focus:ring-deep-teal outline-none transition-colors" />
+              </div>
+            </div>
+
+            <datalist id="locations-datalist"></datalist>
+
+            <!-- Inline Validation Alert Box -->
+            <div id="validation-alert" class="hidden mt-2"></div>
+          </div>
+
+          <!-- Departure Date & Time Matrix -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block text-xs font-semibold text-slate-sec uppercase tracking-wider mb-1">Departure Date</label>
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined text-slate-sec text-[18px] absolute left-3">calendar_today</span>
+                <input id="input-date" type="date" value="2026-09-21" class="w-full pl-10 pr-3 py-2 text-xs font-medium text-charcoal bg-app-bg border border-border-subtle rounded cursor-pointer" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-sec uppercase tracking-wider mb-1">Departure Time</label>
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined text-slate-sec text-[18px] absolute left-3">schedule</span>
+                <input id="input-time" type="time" value="10:00" class="w-full pl-10 pr-3 py-2 text-xs font-medium text-charcoal bg-app-bg border border-border-subtle rounded cursor-pointer" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Three Compact Optimization Cards -->
+          <div class="flex flex-col gap-1.5 pt-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-sec uppercase tracking-wider">Optimize Route</span>
+              <span class="text-[11px] text-muted-slate">Select priority</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 sm:gap-3" role="radiogroup">
+              <!-- FASTEST -->
+              <button id="opt-fastest" type="button" role="radio" aria-checked="true" class="p-2.5 sm:p-3 rounded border border-deep-teal bg-pale-teal text-left flex flex-col justify-between transition-colors">
+                <div class="flex items-center justify-between w-full">
+                  <span class="text-[11px] font-bold tracking-wider text-deep-teal">FASTEST</span>
+                  <span id="icon-fastest" class="material-symbols-outlined text-deep-teal text-[16px] leading-none">check_circle</span>
+                </div>
+                <div class="mt-2">
+                  <span class="block text-xs text-slate-sec">Minimal travel time</span>
+                </div>
+              </button>
+              
+              <!-- CHEAPEST -->
+              <button id="opt-cheapest" type="button" role="radio" aria-checked="false" class="p-2.5 sm:p-3 rounded border border-border-subtle bg-surface hover:bg-app-bg text-left flex flex-col justify-between transition-colors">
+                <div class="flex items-center justify-between w-full">
+                  <span class="text-[11px] font-bold tracking-wider text-slate-sec">CHEAPEST</span>
+                  <span id="icon-cheapest" class="material-symbols-outlined text-transparent text-[16px] leading-none">check_circle</span>
+                </div>
+                <div class="mt-2">
+                  <span class="block text-xs text-slate-sec">Lowest fare cost</span>
+                </div>
+              </button>
+
+              <!-- FEWEST TRANSFERS -->
+              <button id="opt-transfers" type="button" role="radio" aria-checked="false" class="p-2.5 sm:p-3 rounded border border-border-subtle bg-surface hover:bg-app-bg text-left flex flex-col justify-between transition-colors">
+                <div class="flex items-center justify-between w-full">
+                  <span class="text-[11px] font-bold tracking-wider text-slate-sec">TRANSFERS</span>
+                  <span id="icon-transfers" class="material-symbols-outlined text-transparent text-[16px] leading-none">check_circle</span>
+                </div>
+                <div class="mt-2">
+                  <span class="block text-xs text-slate-sec">0 or minimal interchanges</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Search Routes Primary CTA Button -->
+          <div class="pt-2">
+            <button id="btn-search-routes" type="button" class="w-full py-3 px-4 rounded bg-deep-teal hover:bg-deep-teal-hover active:bg-[#05554D] text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors">
+              <span>Search Routes</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONSOLE VIEW 2: ASK AI CONSOLE -->
+        <div id="view-askai" class="hidden bg-surface border border-border-subtle rounded-md p-5 sm:p-6 flex-col gap-4 shadow-xs">
+          <div>
+            <h2 class="text-sm font-semibold text-charcoal uppercase tracking-wider">Natural Language Travel Query</h2>
+            <p class="text-xs text-slate-sec mt-0.5">Describe your journey in English or Manglish. TransitAI parses origins, arrival times, and preferences automatically.</p>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <textarea id="ai-query-input" rows="4" placeholder="Describe your journey in English or Manglish" class="w-full p-3 bg-surface border border-border-subtle rounded text-sm text-charcoal placeholder:text-muted-slate focus:border-deep-teal focus:ring-1 focus:ring-deep-teal outline-none transition-colors"></textarea>
+            <div class="flex items-center justify-between text-[11px] text-slate-sec">
+              <span>Supports Manglish & colloquial phrasing</span>
+              <button id="btn-sample-prompt" type="button" class="text-deep-teal hover:underline font-medium">Use sample query</button>
+            </div>
+          </div>
+
+          <div>
+            <button id="btn-analyse-ai" type="button" class="w-full py-3 px-4 rounded bg-deep-teal hover:bg-deep-teal-hover active:bg-[#05554D] text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors">
+              <span>Analyse Query</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: KERALA NETWORK OVERVIEW -->
+      <div class="lg:col-span-5 flex flex-col gap-5">
+        <div class="bg-surface border border-border-subtle rounded-md p-5 flex flex-col gap-4 shadow-xs">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-deep-teal text-[20px]">hub</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-charcoal">Transit Network</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">STATIC TIMETABLE</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="flex items-center justify-between p-2.5 bg-app-bg rounded border border-border-subtle">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[16px]">directions_subway</span>
+                <span class="font-medium text-charcoal">Kochi Metro (KMRL)</span>
+              </div>
+              <span class="text-[11px] font-semibold text-emerald-700">Scheduled (Aluva – Pettah)</span>
+            </div>
+
+            <div class="flex items-center justify-between p-2.5 bg-app-bg rounded border border-border-subtle">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-accent-rail text-[16px]">train</span>
+                <span class="font-medium text-charcoal">Indian Railways (Southern Zone)</span>
+              </div>
+              <span class="text-[11px] font-semibold text-slate-600">Scheduled Timetable</span>
+            </div>
+
+            <div class="flex items-center justify-between p-2.5 bg-app-bg rounded border border-border-subtle">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-600 text-[16px]">directions_bus</span>
+                <span class="font-medium text-charcoal">KSRTC Swift & Ordinary</span>
+              </div>
+              <span class="text-[11px] font-semibold text-slate-600">Timetable Estimated</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Leaflet JS CDN -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Map & Route Visualizers scripts -->
-    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/routes.js') }}"></script>
+    <!-- DYNAMIC RESULTS SECTION -->
+    <section id="results-section" class="w-full pt-4 hidden">
+      <div id="results-content-area" class="w-full"></div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-surface border-t border-border-subtle mt-10">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-sec">
+      <div class="flex items-center gap-2">
+        <span class="font-display font-bold text-charcoal">TransitAI</span>
+        <span>— Multi-Modal Public Transit Routing. Static timetable & estimated routing.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript Module -->
+  <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
