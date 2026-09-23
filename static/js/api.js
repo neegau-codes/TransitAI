@@ -1,163 +1,206 @@
 /**
  * api.js - Centralized API Service & Data Normalization Layer for TransitAI
+ * Expo Demo build — uses POST /api/search (natural-language) and GET /api/stations.
+ * /api/live is NOT used in this build.
  */
 
 import { USE_MOCK_API, MOCK_LOCATIONS, MOCK_SEARCH_RESPONSE } from './mockData.js';
 
-// Base URL configured via environment variable fallback or location origin
-const API_BASE_URL = (window.VITE_API_BASE_URL || window.API_BASE_URL || "").replace(/\/$/, "");
+// Base URL — falls back to same-origin when Flask serves the frontend directly
+const API_BASE_URL = (window.VITE_API_BASE_URL || window.API_BASE_URL || '').replace(/\/$/, '');
 
 /**
- * Normalizes raw route segments and route options from backend response into internal contract schema.
+ * Normalize any status value to one of the four canonical values.
+ * LIVE is kept for backend compatibility but must NOT be rendered as a
+ * realtime indicator in the Expo UI.
  */
+export const normalizeStatus = value => {
+  const s = String(value || 'UNAVAILABLE').toUpperCase();
+  return ['SCHEDULED', 'ESTIMATED', 'UNAVAILABLE', 'LIVE'].includes(s) ? s : 'UNAVAILABLE';
+};
+
+/** Normalize a single leg / segment object from the backend. */
 function normalizeLeg(segment) {
   if (!segment) return null;
-  
-  let mode = (segment.mode || segment.transport_mode || "transit").toLowerCase();
-  if (mode === "walk" || mode === "walking") mode = "walk";
-  else if (mode === "train" || mode === "rail" || mode === "railway") mode = "train";
-  else if (mode === "metro" || mode === "subway") mode = "metro";
-  else if (mode === "bus") mode = "bus";
+
+  let mode = (segment.mode || segment.transport_mode || 'transit').toLowerCase();
+  if (mode === 'walk' || mode === 'walking') mode = 'walk';
+  else if (mode === 'train' || mode === 'rail' || mode === 'railway') mode = 'train';
+  else if (mode === 'metro' || mode === 'subway') mode = 'metro';
+  else if (mode === 'bus') mode = 'bus';
 
   const departure = segment.departure || (segment.schedule && segment.schedule[0]) || null;
-  const arrival = segment.arrival || null;
-  
-  // Clean status mapping: LIVE | SCHEDULED | ESTIMATED | UNAVAILABLE
-  let rawStatus = (segment.status || "SCHEDULED").toUpperCase();
-  let status = "SCHEDULED";
-  if (rawStatus === "LIVE") status = "LIVE";
-  else if (rawStatus === "ESTIMATED") status = "ESTIMATED";
-  else if (rawStatus === "UNAVAILABLE") status = "UNAVAILABLE";
-  else status = "SCHEDULED";
+  const arrival   = segment.arrival || null;
+  const status    = normalizeStatus(segment.status);
+
+  // Preserve explicit nulls for missing optional data — do NOT default to 0
+  const fareAmount = typeof segment.cost === 'number'
+    ? segment.cost
+    : (typeof segment.fare?.amount === 'number' ? segment.fare.amount : null);
 
   return {
-    mode: mode,
-    provider: segment.provider || (mode === "metro" ? "Kochi Metro" : mode === "train" ? "Indian Railways" : "KSRTC"),
-    from: segment.source_name || segment.from || "Origin",
-    to: segment.destination_name || segment.to || "Destination",
-    departure: departure,
-    arrival: arrival,
-    duration_minutes: segment.duration || segment.duration_minutes || 0,
+    mode,
+    provider:         segment.provider || null,
+    from:             segment.source_name || segment.from || null,
+    to:               segment.destination_name || segment.to || null,
+    departure,
+    arrival,
+    duration_minutes: segment.duration ?? segment.duration_minutes ?? null,
     fare: {
-      amount: typeof segment.cost === 'number' ? segment.cost : (segment.fare?.amount || 0),
-      currency: "INR",
-      status: status
+      amount:   fareAmount,
+      currency: segment.fare?.currency || 'INR',
+      status:   normalizeStatus(segment.fare?.status)
     },
-    status: status,
-    source: segment.source || (mode === "metro" ? "KMRL Live" : mode === "train" ? "IRCTC Schedule" : "KSRTC Schedule")
+    status,
+    source:   segment.source || null,
+    geometry: segment.geometry || null
   };
 }
 
-function normalizeRoute(rawRoute, defaultLabel = "Recommended") {
+/** Normalize a single route object from the backend. */
+function normalizeRoute(rawRoute, defaultLabel = 'Route') {
   if (!rawRoute) return null;
 
-  // Raw route can be a dict from backend like { type, total_duration, total_cost, transfers, segments }
-  // or a recommendation object { category, explanation, route: { segments... } }
+  // Route can be a direct object OR wrapped in { route: {...}, category, explanation }
   const routeObj = rawRoute.route || rawRoute;
-  const label = rawRoute.category || rawRoute.type || defaultLabel;
+  const label    = rawRoute.category || rawRoute.label || rawRoute.type || defaultLabel;
   const segments = routeObj.segments || routeObj.legs || [];
   const normalizedLegs = segments.map(normalizeLeg).filter(Boolean);
 
-  const duration_minutes = routeObj.total_duration || routeObj.duration_minutes || 
-    normalizedLegs.reduce((sum, leg) => sum + (leg.duration_minutes || 0), 0);
+  // Preserve explicit backend values; do NOT compute fallbacks to 0
+  const duration_minutes = routeObj.duration_minutes ?? routeObj.total_duration ?? null;
 
-  const totalCost = typeof routeObj.total_cost === 'number' ? routeObj.total_cost : 
-    (routeObj.fare?.amount || normalizedLegs.reduce((sum, leg) => sum + (leg.fare?.amount || 0), 0));
+  const costVal = typeof routeObj.cost === 'number'   ? routeObj.cost
+                : typeof routeObj.total_cost === 'number' ? routeObj.total_cost
+                : (routeObj.fare?.amount ?? null);
 
-  const transfers = typeof routeObj.transfers === 'number' ? routeObj.transfers : 
-    Math.max(0, normalizedLegs.filter(l => l.mode !== 'walk').length - 1);
+  const transfers      = routeObj.transfers      ?? null;
+  const walking_minutes = routeObj.walking_minutes ?? null;
 
-  const walking_minutes = normalizedLegs
-    .filter(l => l.mode === 'walk')
-    .reduce((sum, leg) => sum + (leg.duration_minutes || 0), 0);
-
-  // Overall status evaluation from legs
-  let status = "SCHEDULED";
-  if (normalizedLegs.some(l => l.status === "LIVE")) status = "LIVE";
-  else if (normalizedLegs.some(l => l.status === "UNAVAILABLE")) status = "UNAVAILABLE";
-  else if (normalizedLegs.some(l => l.status === "ESTIMATED")) status = "ESTIMATED";
+  // Determine overall status — use top-level first, then derive from legs
+  let rawStatus = routeObj.status;
+  if (!rawStatus && normalizedLegs.length > 0) {
+    if      (normalizedLegs.some(l => l.status === 'LIVE'))        rawStatus = 'LIVE';
+    else if (normalizedLegs.some(l => l.status === 'UNAVAILABLE')) rawStatus = 'UNAVAILABLE';
+    else if (normalizedLegs.some(l => l.status === 'ESTIMATED'))   rawStatus = 'ESTIMATED';
+    else                                                            rawStatus = 'SCHEDULED';
+  }
+  const status = normalizeStatus(rawStatus);
 
   return {
-    route_id: routeObj.id || routeObj.route_id || `rt_${Math.random().toString(36).substr(2, 9)}`,
-    label: label,
-    category: label,
-    duration_minutes: duration_minutes,
+    route_id:         routeObj.id || routeObj.route_id || null,
+    trip_id:          routeObj.trip_id || null,   // Preserved — not displayed unless needed
+    label,
+    category:         label,
+    duration_minutes,
+    mode:             routeObj.mode || (normalizedLegs[0] ? normalizedLegs[0].mode : null),
+    provider:         routeObj.provider || null,
+    source:           routeObj.source || null,
+    geometry:         routeObj.geometry || null,
     fare: {
-      amount: totalCost,
-      currency: "INR",
-      status: status
+      amount:   costVal,
+      currency: routeObj.fare?.currency || 'INR',
+      status:   normalizeStatus(routeObj.fare?.status || status)
     },
-    transfers: transfers,
-    walking_minutes: walking_minutes,
-    status: status,
-    legs: normalizedLegs,
-    explanation: rawRoute.explanation || null
+    transfers,
+    walking_minutes,
+    status,
+    legs:             normalizedLegs,
+    explanation:      rawRoute.explanation || null
   };
 }
 
+/**
+ * Normalize the raw /api/search response into the canonical frontend structure.
+ * Handles three shapes:
+ *   1. { routes: [...], intent, recommendations }   ← V2 contract (primary)
+ *   2. { recommendations: [...] }                    ← recommendation list
+ *   3. { fastest, cheapest, fewest_transfers, ... }  ← legacy object keys
+ */
 export function normalizeSearchResponse(data) {
-  if (!data) return { intent: null, routes: [], status: "OK" };
+  if (!data) return { intent: null, routes: [], recommendations: null, status: 'OK' };
 
   let routes = [];
+  let recommendations = null;
 
-  // 1. Direct routes array in standard contract
-  if (Array.isArray(data.routes)) {
-    routes = data.routes.map(r => normalizeRoute(r));
+  // 1. Primary V2 shape (Array or Dict)
+  if (Array.isArray(data.routes) && data.routes.length > 0) {
+    routes = data.routes.map(r => normalizeRoute(r)).filter(Boolean);
   }
-  // 2. Recommendations format from recommendation_engine / ai-search
+  else if (data.routes && typeof data.routes === 'object' && !Array.isArray(data.routes)) {
+    const keys = ['best', 'fastest', 'cheapest', 'fewest_transfers', 'least_walking', 'balanced'];
+    keys.forEach(k => {
+      if (data.routes[k]) {
+        const norm = normalizeRoute(data.routes[k], k.replace(/_/g, ' ').toUpperCase());
+        if (norm) routes.push(norm);
+      }
+    });
+    // Also include any other route objects in data.routes not in keys except raw_routes
+    Object.keys(data.routes).forEach(k => {
+      if (!keys.includes(k) && k !== 'raw_routes' && data.routes[k]) {
+        const norm = normalizeRoute(data.routes[k], k.replace(/_/g, ' ').toUpperCase());
+        if (norm) routes.push(norm);
+      }
+    });
+  }
+  // 2. Recommendation list
   else if (Array.isArray(data.recommendations) && data.recommendations.length > 0) {
-    routes = data.recommendations.map(r => normalizeRoute(r));
+    routes = data.recommendations.map(r => normalizeRoute(r)).filter(Boolean);
   }
-  // 3. Structured object format { fastest, cheapest, fewest_transfers, balanced }
+  // 3. Legacy named keys at root
   else {
-    const keys = ["fastest", "cheapest", "fewest_transfers", "balanced"];
+    const keys = ['fastest', 'cheapest', 'fewest_transfers', 'balanced', 'best', 'least_walking'];
     keys.forEach(k => {
       if (data[k]) {
-        const norm = normalizeRoute(data[k], k.replace('_', ' ').toUpperCase());
+        const norm = normalizeRoute(data[k], k.replace(/_/g, ' ').toUpperCase());
         if (norm) routes.push(norm);
       }
     });
   }
 
-  // Deduplicate or sanitize routes
+  // Consume recommendations object if provided separately
+  if (data.recommendations && typeof data.recommendations === 'object' && !Array.isArray(data.recommendations)) {
+    recommendations = {};
+    ['BEST', 'FASTEST', 'CHEAPEST', 'LEAST WALKING'].forEach(key => {
+      const rawKey = key.toLowerCase().replace(' ', '_');
+      if (data.recommendations[rawKey] || data.recommendations[key]) {
+        recommendations[key] = normalizeRoute(data.recommendations[rawKey] || data.recommendations[key], key);
+      }
+    });
+    if (Object.keys(recommendations).length === 0) recommendations = null;
+  }
+
   const intent = data.intent || data.parsed_params || null;
-  const status = data.status || (data.error ? "ERROR" : "OK");
 
   return {
     intent: intent ? {
-      origin: intent.source || intent.origin || null,
-      destination: intent.destination || null,
-      date: intent.travel_date || intent.date || null,
-      arrive_before: intent.arrival_deadline || intent.arrive_before || null,
-      depart_after: intent.departure_time || intent.depart_after || null,
-      budget: intent.budget_limit || intent.budget || null,
+      origin:          intent.source || intent.origin || null,
+      destination:     intent.destination || null,
+      date:            intent.travel_date || intent.date || null,
+      arrive_before:   intent.arrival_deadline || intent.arrive_before || null,
+      depart_after:    intent.departure_time || intent.depart_after || null,
+      budget:          intent.budget_limit || intent.budget || null,
       preferred_modes: intent.preferred_modes || []
     } : null,
-    routes: routes,
-    status: status,
+    routes,
+    recommendations,
+    status: data.status || (data.error ? 'ERROR' : 'OK'),
     raw: data
   };
 }
 
-/**
- * Generic fetch wrapper with timeout & JSON error handling
- */
+/** Generic fetch with 12 s timeout and structured error handling. */
 async function requestAPI(endpoint, options = {}) {
-  if (USE_MOCK_API) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return null; // Signals caller to use mock
-  }
-
   const url = `${API_BASE_URL}${endpoint}`;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
+  const timeoutId  = setTimeout(() => controller.abort(), 12000);
 
   try {
     const response = await fetch(url, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
         ...(options.headers || {})
       },
       signal: controller.signal
@@ -166,99 +209,75 @@ async function requestAPI(endpoint, options = {}) {
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      const message = errData.error || errData.message || `API error (${response.status})`;
-      const err = new Error(message);
-      err.status = response.status;
-      err.payload = errData;
+      const err     = new Error(errData.error || errData.message || `API error (${response.status})`);
+      err.code      = errData.code || String(response.status);
+      err.httpStatus = response.status;
       throw err;
     }
 
     return await response.json();
   } catch (error) {
     clearTimeout(timeoutId);
+    if (!error.code) error.code = 'NETWORK_ERROR';
     throw error;
   }
 }
 
 export const api = {
   /**
-   * Natural Language / AI Search (POST /api/search)
+   * Natural-language search — POST /api/search { "query": "..." }
+   * This is the primary Expo Demo search path.
+   * Do NOT convert to station IDs; the NLP is entirely backend-owned.
    */
   async search(query) {
-    if (USE_MOCK_API) {
-      return normalizeSearchResponse(MOCK_SEARCH_RESPONSE);
-    }
-
-    try {
-      // Send query object to POST /api/search or fallback to /api/ai-search
-      const data = await requestAPI('/api/search', {
-        method: 'POST',
-        body: JSON.stringify({ query: query })
-      });
-      return normalizeSearchResponse(data);
-    } catch (err) {
-      // Fallback try /api/ai-search if endpoint is split
-      try {
-        const data = await requestAPI('/api/ai-search', {
-          method: 'POST',
-          body: JSON.stringify({ query: query })
-        });
-        return normalizeSearchResponse(data);
-      } catch (innerErr) {
-        throw innerErr;
-      }
-    }
-  },
-
-  /**
-   * Structured Route Search (GET or POST /api/routes / /api/search)
-   */
-  async getRoutes(from, to, date, departureTime, optimization = "FASTEST") {
-    if (USE_MOCK_API) {
-      return normalizeSearchResponse(MOCK_SEARCH_RESPONSE);
-    }
-
-    // Call structured POST /api/search
+    if (USE_MOCK_API) return normalizeSearchResponse(MOCK_SEARCH_RESPONSE);
     const data = await requestAPI('/api/search', {
       method: 'POST',
-      body: JSON.stringify({
-        source: from,
-        destination: to,
-        departure_time: departureTime || "10:00",
-        date: date,
-        optimization: optimization
-      })
+      body:   JSON.stringify({ query })
     });
     return normalizeSearchResponse(data);
   },
 
   /**
-   * Get all stations / locations for autocomplete (GET /api/locations)
+   * Station / location list for autocomplete — GET /api/stations
+   * Normalizes coordinates to numeric values. Validates with isFinite.
    */
   async getLocations() {
-    if (USE_MOCK_API) {
-      return MOCK_LOCATIONS;
-    }
+    if (USE_MOCK_API) return MOCK_LOCATIONS;
     try {
-      const locations = await requestAPI('/api/locations');
-      return Array.isArray(locations) ? locations : [];
+      const payload = await requestAPI('/api/stations');
+      const items   = Array.isArray(payload) ? payload : (payload?.data || []);
+      return items.map(s => ({
+        ...s,
+        latitude:  Number(s.latitude),
+        longitude: Number(s.longitude)
+      })).filter(s => Number.isFinite(s.latitude) && Number.isFinite(s.longitude));
     } catch (err) {
-      console.warn("Failed to fetch locations, returning empty array", err);
+      console.warn('Failed to fetch /api/stations — returning empty list', err);
       return [];
     }
   },
 
   /**
-   * Get live route telemetry (GET /api/live/{routeId})
+   * Provider health status — GET /api/status
+   * If the response is empty or unavailable, the UI falls back to the static banner.
    */
-  async getLive(routeId) {
-    if (USE_MOCK_API) {
-      return { routeId, status: "LIVE", delay_minutes: 0, updated_at: new Date().toISOString() };
-    }
+  async getStatus() {
+    if (USE_MOCK_API) return { data: {} };
     try {
-      return await requestAPI(`/api/live/${encodeURIComponent(routeId)}`);
-    } catch (err) {
-      return { routeId, status: "SCHEDULED", error: err.message };
+      return await requestAPI('/api/status');
+    } catch (_) {
+      return { data: {} };
     }
+  },
+
+  /**
+   * getLive() — NOT used in Expo Demo.
+   * Retained stub to avoid import errors in any file that references it.
+   * Real-time integration is future scope.
+   */
+  async getLive(_routeId) {
+    console.info('getLive() is disabled for Expo. Real-time is future scope.');
+    return { status: 'UNAVAILABLE' };
   }
 };

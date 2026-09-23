@@ -7,7 +7,8 @@ import { renderRouteSummaryCards } from './components/RouteSummaryCard.js';
 import { renderJourneyTimeline } from './components/JourneyTimeline.js';
 import { renderTransitMap } from './components/TransitMap.js';
 import { 
-  renderLoadingState, 
+  renderLoadingState,
+  renderInitialState,
   renderEmptyState, 
   renderErrorState, 
   renderUnsupportedLocationAlert 
@@ -23,6 +24,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initOptimizationCards();
   initFormInteractions();
   await loadLocations();
+  // Show prompt to enter a journey on page load
+  showResultsContainer();
+  renderState(renderInitialState());
 });
 
 // 1. Mode Tabs (Planner vs Ask AI)
@@ -107,11 +111,11 @@ function setOptimization(selected) {
 // 3. Form & Location Autocomplete
 async function loadLocations() {
   try {
-    const locations = await api.getLocations();
+    const locations = await api.getLocations();  // Now calls /api/stations
     availableLocations = locations;
     populateDatalist(locations);
   } catch (err) {
-    console.warn("Failed loading locations", err);
+    console.warn('Failed loading stations', err);
   }
 }
 
@@ -174,16 +178,18 @@ function showUnsupportedLocationError() {
 }
 
 // 4. Planner Search Handler
+// Builds a natural-language query from the form inputs and sends it to
+// POST /api/search — preserving the NLP flow that Member 2 has implemented.
 async function handlePlannerSearch() {
   const originInput = document.getElementById('input-origin');
-  const destInput = document.getElementById('input-destination');
-  const dateInput = document.getElementById('input-date');
-  const timeInput = document.getElementById('input-time');
+  const destInput   = document.getElementById('input-destination');
+  const dateInput   = document.getElementById('input-date');
+  const timeInput   = document.getElementById('input-time');
 
   const origin = originInput?.value?.trim();
-  const dest = destInput?.value?.trim();
-  const date = dateInput?.value || new Date().toISOString().split('T')[0];
-  const time = timeInput?.value || "10:00";
+  const dest   = destInput?.value?.trim();
+  const date   = dateInput?.value || '';
+  const time   = timeInput?.value || '';
 
   hideValidationAlert();
 
@@ -192,53 +198,23 @@ async function handlePlannerSearch() {
     return;
   }
 
-  showResultsContainer();
-  renderState(renderLoadingState("Searching transit routes..."));
-
-  try {
-    const res = await api.getRoutes(origin, dest, date, time, currentOptimization.toUpperCase());
-    
-    if (!res || !res.routes || res.routes.length === 0) {
-      renderState(renderEmptyState(`No routes found from ${origin} to ${dest}`));
-      return;
-    }
-
-    currentRoutes = res.routes;
-    selectedRouteId = currentRoutes[0].route_id;
-    renderResultsView(res);
-  } catch (err) {
-    if (err.status === 422 || err.message?.includes("Location") || err.message?.includes("connect")) {
-      showUnsupportedLocationError();
-      renderState(renderErrorState("Location not supported yet", "We couldn't connect this location to available transit data. Please select another station hub."));
-    } else {
-      renderState(renderErrorState("Unable to load routes", err.message || "Please check backend connection and try again."));
-    }
-  }
-}
-
-// 5. Ask AI Search Handler
-async function handleAISearch() {
-  const aiInput = document.getElementById('ai-query-input');
-  const query = aiInput?.value?.trim();
-
-  if (!query) {
-    alert("Please enter a travel query.");
-    return;
+  // Build a descriptive natural-language query so the NLP backend can extract
+  // origin, destination, date, time and any other constraints.
+  let query = `from ${origin} to ${dest}`;
+  if (date) query += ` on ${date}`;
+  if (time) query += ` at ${time}`;
+  if (currentOptimization && currentOptimization !== 'fastest') {
+    query += `, ${currentOptimization} route`;
   }
 
   showResultsContainer();
-  renderState(renderLoadingState("Analyzing natural language travel query with AI..."));
+  renderState(renderLoadingState('Calculating optimal transit routes...'));
 
   try {
     const res = await api.search(query);
 
-    if (res.status === "UNSUPPORTED_LOCATION" || !res.routes || res.routes.length === 0) {
-      if (res.intent?.origin) {
-        renderState(renderEmptyState(`No transit routes available for ${res.intent.origin} → ${res.intent.destination}`));
-      } else {
-        showUnsupportedLocationError();
-        renderState(renderErrorState("Location not supported yet", "We couldn't connect this location to available transit data. Please specify supported Kerala hubs (e.g. Aluva, Thrissur, Ernakulam)."));
-      }
+    if (!res || !res.routes || res.routes.length === 0) {
+      renderState(renderEmptyState(`No route found from ${origin} to ${dest}.`));
       return;
     }
 
@@ -246,7 +222,65 @@ async function handleAISearch() {
     selectedRouteId = currentRoutes[0].route_id;
     renderResultsView(res);
   } catch (err) {
-    renderState(renderErrorState("Unable to load routes", err.message || "Failed to process AI query."));
+    const code = err.code || '';
+    if (err.httpStatus === 422 || code === 'UNSUPPORTED_LOCATION' || code === '422') {
+      showUnsupportedLocationError();
+      renderState(renderErrorState(
+        'We couldn\'t identify one of the locations.',
+        'Try using a nearby station or supported place name.'
+      ));
+    } else {
+      renderState(renderErrorState(
+        'TransitAI backend is unavailable.',
+        'Please try again.'
+      ));
+    }
+
+}
+
+// 5. Ask AI Search Handler
+// Routes the natural-language query from the Ask AI tab through POST /api/search.
+// Both Planner and Ask AI use the same NLP endpoint — the difference is just input UX.
+async function handleAISearch() {
+  const aiInput = document.getElementById('ai-query-input');
+  const query   = aiInput?.value?.trim();
+
+  if (!query) {
+    alert('Please enter a travel query.');
+    return;
+  }
+
+  showResultsContainer();
+  renderState(renderLoadingState('Calculating optimal transit routes...'));
+
+  try {
+    const res = await api.search(query);
+
+    if (!res || !res.routes || res.routes.length === 0) {
+      const origin = res?.intent?.origin;
+      const dest   = res?.intent?.destination;
+      if (origin && dest) {
+        renderState(renderEmptyState(`No route found for ${origin} → ${dest}.`));
+      } else {
+        renderState(renderEmptyState('No route found for this journey. Try another origin, destination, or travel time.'));
+      }
+      return;
+    }
+
+    currentRoutes   = res.routes;
+    selectedRouteId = currentRoutes[0].route_id;
+    renderResultsView(res);
+  } catch (err) {
+    const code = err.code || '';
+    if (err.httpStatus === 422 || code === 'UNSUPPORTED_LOCATION') {
+      showUnsupportedLocationError();
+      renderState(renderErrorState(
+        "We couldn't identify one of the locations.",
+        'Try using a nearby station or supported place name (e.g. Aluva, Thrissur, Ernakulam).'
+      ));
+    } else {
+      renderState(renderErrorState('TransitAI backend is unavailable.', 'Please try again.'));
+    }
   }
 }
 

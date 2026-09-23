@@ -42,6 +42,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/api/locations', methods=['GET'])
+@app.route('/api/stations', methods=['GET'])
 def get_locations():
     """Returns all available locations (stops/stations) in the database."""
     conn = None
