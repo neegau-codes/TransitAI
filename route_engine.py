@@ -204,7 +204,14 @@ class RouteEngine:
                 
             dept_str = scheduler.mins_to_time(current_mins + best_wait)
             arr_str = scheduler.mins_to_time(best_arrival)
-            
+
+            # ride_duration is the actual travel time on this vehicle (no wait).
+            # best_wait is the wait at the station before boarding.
+            # We store only ride_duration in the Segment so the timeline shows
+            # the correct leg travel time; total_duration (computed below) is
+            # first-departure → final-arrival and correctly includes all waits.
+            ride_duration = best_segment.duration  # raw DB ride time, minutes
+
             localized_seg = Segment(
                 id=best_segment.id,
                 source_id=best_segment.source_id,
@@ -213,11 +220,15 @@ class RouteEngine:
                 destination_name=best_segment.destination_name,
                 mode=best_segment.mode,
                 route_name=f"{best_segment.route_name} (Dep: {dept_str}, Arr: {arr_str})",
-                duration=best_segment.duration + best_wait,  # includes waiting time
+                duration=ride_duration,  # ride time only — wait is implicit in total
                 cost=best_cost,
                 provider=best_segment.provider,
                 schedule=best_segment.schedule
             )
+            # Attach explicit departure/arrival so normalize_route & the timeline
+            # can display them directly without re-parsing the route_name string.
+            localized_seg.departure = dept_str
+            localized_seg.arrival = arr_str
             
             segments_taken.append(localized_seg)
             current_mins = best_arrival
@@ -271,15 +282,15 @@ class RouteEngine:
         if not dst_ids:
             return {"error": f"Destination location '{dest_query}' not found."}
             
-        # Find candidate paths up to length limit to avoid path explosion
+        # Find candidate paths up to length limit using simple DiGraph structure (cutoff=4)
+        G_simple = nx.DiGraph(G)
         all_candidate_paths = []
         for s in src_ids:
             for d in dst_ids:
                 if s == d:
                     continue
                 try:
-                    # Look for paths using simple topological search capped at 6 nodes (5 segments)
-                    paths = list(nx.all_simple_paths(G, s, d, max_depth=5))
+                    paths = list(nx.all_simple_paths(G_simple, s, d, cutoff=4))
                     all_candidate_paths.extend(paths)
                 except Exception:
                     continue

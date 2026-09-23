@@ -5,13 +5,14 @@
 import { api } from './api.js';
 import { renderRouteSummaryCards } from './components/RouteSummaryCard.js';
 import { renderJourneyTimeline } from './components/JourneyTimeline.js';
-import { renderTransitMap } from './components/TransitMap.js';
-import { 
-  renderLoadingState, 
-  renderEmptyState, 
-  renderErrorState, 
-  renderUnsupportedLocationAlert 
+import { renderTransitMap, initLeafletMap } from './components/TransitMap.js';
+import {
+  renderLoadingState,
+  renderEmptyState,
+  renderErrorState,
+  renderUnsupportedLocationAlert
 } from './components/StateViews.js';
+
 
 let availableLocations = [];
 let currentRoutes = [];
@@ -124,11 +125,24 @@ function populateDatalist(locations) {
 function initFormInteractions() {
   const originInput = document.getElementById('input-origin');
   const destInput = document.getElementById('input-destination');
+  const dateInput = document.getElementById('input-date');
+  const timeInput = document.getElementById('input-time');
   const swapBtn = document.getElementById('btn-swap-endpoints');
   const searchBtn = document.getElementById('btn-search-routes');
   const aiSubmitBtn = document.getElementById('btn-analyse-ai');
   const aiInput = document.getElementById('ai-query-input');
   const samplePromptBtn = document.getElementById('btn-sample-prompt');
+
+  // Set default date and time to current system date and time
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+
+  if (dateInput) dateInput.value = `${year}-${month}-${day}`;
+  if (timeInput) timeInput.value = `${hours}:${minutes}`;
 
   if (swapBtn && originInput && destInput) {
     swapBtn.addEventListener('click', () => {
@@ -180,10 +194,14 @@ async function handlePlannerSearch() {
   const dateInput = document.getElementById('input-date');
   const timeInput = document.getElementById('input-time');
 
+  const now = new Date();
+  const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
   const origin = originInput?.value?.trim();
   const dest = destInput?.value?.trim();
-  const date = dateInput?.value || new Date().toISOString().split('T')[0];
-  const time = timeInput?.value || "10:00";
+  const date = dateInput?.value || currentDate;
+  const time = timeInput?.value || currentTime;
 
   hideValidationAlert();
 
@@ -323,4 +341,7 @@ function renderResultsView(response) {
       }
     });
   });
+
+  // Initialize leaflet map
+  initLeafletMap(selectedRoute);
 }

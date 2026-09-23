@@ -332,15 +332,36 @@ class RecommendationEngine:
                     if mode == "walk":
                         walking_mins += seg_dict.get("duration", 0)
 
-                    # Ensure leg format matches V2 schema
-                    dept = seg_dict.get("departure")
-                    arr = seg_dict.get("arrival")
+                    # Prefer explicit departure/arrival fields on the segment.
+                    # These are set by route_engine._simulate_schedule via localized_seg.departure/arrival.
+                    # Fall back to parsing route_name if the explicit fields are absent.
+                    dept = seg_dict.get("departure") or ""
+                    arr  = seg_dict.get("arrival") or ""
                     if not dept or not arr:
-                        import re
-                        m = re.search(r'Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})', seg_dict.get("route_name", ""))
+                        import re as _re
+                        m = _re.search(r'Dep:\s*(\d{2}:\d{2}),\s*Arr:\s*(\d{2}:\d{2})', seg_dict.get("route_name", ""))
                         if m:
                             dept = dept or m.group(1)
-                            arr = arr or m.group(2)
+                            arr  = arr  or m.group(2)
+
+                    # Recompute leg duration from timestamps (handles midnight crossing).
+                    leg_dur = seg_dict.get("duration", 0)
+                    if dept and arr:
+                        import re as _re2
+                        def _tmins(t):
+                            try:
+                                h, mn = map(int, t.strip().split(":"))
+                                return h * 60 + mn
+                            except Exception:
+                                return None
+                        fd = _tmins(dept)
+                        la = _tmins(arr)
+                        if fd is not None and la is not None:
+                            if la < fd:
+                                la += 1440
+                            computed = la - fd
+                            if 0 < computed <= 720:
+                                leg_dur = computed
 
                     legs.append({
                         "mode": mode.upper(),
@@ -348,7 +369,7 @@ class RecommendationEngine:
                         "to": seg_dict.get("destination_name") or seg_dict.get("to"),
                         "departure": dept or None,
                         "arrival": arr or None,
-                        "duration_minutes": seg_dict.get("duration", 0),
+                        "duration_minutes": leg_dur,   # corrected from timestamps
                         "fare": {
                             "amount": seg_dict.get("cost", 0.0),
                             "currency": "INR",

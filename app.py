@@ -89,14 +89,25 @@ def normalize_route(raw_route, label="Option", route_id="r1", id_map=None, name_
             seg_dict = getattr(seg, "__dict__", {})
 
         mode = seg_dict.get("mode", "transit")
-        dur = seg_dict.get("duration", 0)
-        cost = seg_dict.get("cost", 0.0)
-        provider = seg_dict.get("provider", "Transit")
-        source_name = seg_dict.get("source_name", "")
-        dest_name = seg_dict.get("destination_name", "")
-        route_name = seg_dict.get("route_name", "")
-        src_id = seg_dict.get("source_id")
-        dst_id = seg_dict.get("destination_id")
+        # Handle both Segment-style and V2-leg-style dicts.
+        # Segment: source_name/destination_name/source_id/destination_id
+        # V2 leg: from/to (no IDs)
+        source_name = seg_dict.get("source_name") or seg_dict.get("from") or ""
+        dest_name   = seg_dict.get("destination_name") or seg_dict.get("to") or ""
+        route_name  = seg_dict.get("route_name", "")
+        src_id      = seg_dict.get("source_id")
+        dst_id      = seg_dict.get("destination_id")
+        provider    = seg_dict.get("provider", "Transit")
+
+        # Cost: prefer top-level cost key, fall back to fare.amount
+        cost_raw = seg_dict.get("cost")
+        if cost_raw is None:
+            fare_obj = seg_dict.get("fare") or {}
+            cost_raw = fare_obj.get("amount", 0.0)
+        cost = float(cost_raw) if cost_raw is not None else 0.0
+
+        # Duration: top-level duration key (may be corrected ride-time only)
+        dur = seg_dict.get("duration") or seg_dict.get("duration_minutes") or 0
 
         if mode == 'walk':
             walking_mins += dur
@@ -108,14 +119,33 @@ def normalize_route(raw_route, label="Option", route_id="r1", id_map=None, name_
             status = "SCHEDULED"
             source = "STATIC_SCHEDULE"
 
-        dept = "N/A"
-        arr = "N/A"
-        m_dept = re.search(r'Dep:\s*(\d{2}:\d{2})', route_name)
-        m_arr = re.search(r'Arr:\s*(\d{2}:\d{2})', route_name)
-        if m_dept:
-            dept = m_dept.group(1)
-        if m_arr:
-            arr = m_arr.group(1)
+        # Prefer explicit departure/arrival stored on the segment object.
+        # Fall back to parsing them from the route_name string "(Dep: HH:MM, Arr: HH:MM)".
+        dept = seg_dict.get("departure") or ""
+        arr  = seg_dict.get("arrival") or ""
+        if not dept or not arr:
+            m_dept = re.search(r'Dep:\s*(\d{2}:\d{2})', route_name)
+            m_arr  = re.search(r'Arr:\s*(\d{2}:\d{2})', route_name)
+            if m_dept:
+                dept = m_dept.group(1)
+            if m_arr:
+                arr = m_arr.group(1)
+        dept = dept or "N/A"
+        arr  = arr  or "N/A"
+
+        # Recompute leg duration from departure→arrival timestamps when both are
+        # available. This is the authoritative source; it handles midnight crossings
+        # correctly and is immune to any legacy "ride+wait" inflation in the DB field.
+        if dept != "N/A" and arr != "N/A":
+            import scheduler as _sched
+            d_mins = _sched.time_to_mins(dept)
+            a_mins = _sched.time_to_mins(arr)
+            if a_mins < d_mins:          # crosses midnight
+                a_mins += 1440
+            computed_dur = a_mins - d_mins
+            # Only trust the computed value when it is plausible (0 < dur ≤ 720 min)
+            if 0 < computed_dur <= 720:
+                dur = computed_dur
 
         leg = {
             "mode": mode,
@@ -185,6 +215,10 @@ def normalize_route(raw_route, label="Option", route_id="r1", id_map=None, name_
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
 
 @app.route('/api/locations', methods=['GET'])
 def get_locations():
@@ -313,26 +347,85 @@ def search_routes():
                 norm_fewest = None
                 raw_routes = []
             else:
-                v2_routes = rec_engine.generate_v2_recommendations(results)
                 id_map, name_map = _get_location_coords_map()
+
+                # Build label→raw_route map from the recommendation engine.
+                # generate_v2_recommendations returns route dicts that lack geometry.
+                # We rebuild each route via normalize_route() which adds geometry
+                # and correctly recalculates leg duration from Dep/Arr timestamps.
+                rec_raw = rec_engine.generate_v2_recommendations(results)
+
+                v2_routes = []
+                seen_route_sigs = set()
+                label_order = ["BEST", "FASTEST", "CHEAPEST", "LEAST WALKING"]
+                # Collect the underlying raw_route dict for each label
+                # generate_v2_recommendations stores total_time/total_cost from
+                # the raw evaluated_route dict; we pair those back to get segments.
+                raw_by_label = {}
+                for rr in rec_raw:
+                    lbl = rr.get("label", "")
+                    # The segments are stored inside rr["legs"] but without geometry.
+                    # Use the raw evaluated_route stored in route_engine if available,
+                    # but that's no longer easily accessible. Instead re-normalise
+                    # directly from the rec_raw object (which has segments/legs).
+                    raw_by_label[lbl] = rr
+
+                for lbl in label_order:
+                    rr = raw_by_label.get(lbl)
+                    if not rr:
+                        continue
+                    # Build a raw_route dict compatible with normalize_route()
+                    raw_for_norm = {
+                        "segments": rr.get("legs", []),
+                        "total_duration": rr.get("duration_minutes", 0),
+                        "total_cost": rr.get("fare", {}).get("amount", 0.0),
+                        "transfers": rr.get("transfers", 0),
+                    }
+                    normed = normalize_route(
+                        raw_for_norm,
+                        label=lbl,
+                        route_id=rr.get("route_id", "ta_001"),
+                        id_map=id_map,
+                        name_map=name_map
+                    )
+                    if normed is None:
+                        continue
+
+                    # Recompute total journey duration as (final arrival - first departure)
+                    # using the actual Dep/Arr clock times on legs — this is correct across midnight.
+                    normed_legs = normed.get("legs", [])
+                    first_dept = None
+                    last_arr  = None
+                    for leg in normed_legs:
+                        if leg.get("departure") and leg["departure"] != "N/A":
+                            if first_dept is None:
+                                first_dept = leg["departure"]
+                        if leg.get("arrival") and leg["arrival"] != "N/A":
+                            last_arr = leg["arrival"]
+                    if first_dept and last_arr:
+                        import scheduler as _sched
+                        fd = _sched.time_to_mins(first_dept)
+                        la = _sched.time_to_mins(last_arr)
+                        if la < fd:
+                            la += 1440  # crossed midnight
+                        total_journey_dur = la - fd
+                        if total_journey_dur > 0:
+                            normed["duration_minutes"] = total_journey_dur
+                            normed["total_duration"] = total_journey_dur
+                            normed["duration"] = total_journey_dur
+
+                    # Deduplicate: if two labels map to the exact same set of legs,
+                    # still include both cards (so the UI always has 4 labels when
+                    # they exist) — but mark the route_id uniquely per label.
+                    normed["label"] = lbl
+                    normed["route_id"] = rr.get("route_id", "ta_001") + "_" + lbl.lower().replace(" ", "_")
+
+                    v2_routes.append(normed)
+
+                raw_routes = results.get("raw_routes", [])
                 norm_fastest = normalize_route(results.get("fastest"), label="Fastest Route", route_id="r_fastest", id_map=id_map, name_map=name_map)
                 norm_cheapest = normalize_route(results.get("cheapest"), label="Cheapest Route", route_id="r_cheapest", id_map=id_map, name_map=name_map)
                 norm_fewest = normalize_route(results.get("fewest_transfers"), label="Fewest Transfers", route_id="r_fewest_transfers", id_map=id_map, name_map=name_map)
-                raw_routes = results.get("raw_routes", [])
-
-        for vr in v2_routes:
-            if "total_duration" not in vr:
-                vr["total_duration"] = vr.get("duration_minutes", 0)
-            if "total_cost" not in vr:
-                vr["total_cost"] = vr.get("fare", {}).get("amount", 0.0)
-            if "cost" not in vr:
-                vr["cost"] = vr.get("fare", {}).get("amount", 0.0)
-            if "duration" not in vr:
-                vr["duration"] = vr.get("duration_minutes", 0)
-            if "type" not in vr:
-                vr["type"] = vr.get("label", "").lower()
-            if "segments" not in vr:
-                vr["segments"] = vr.get("legs", [])
 
         intent_obj = v2_intent
         meta_obj = {
@@ -382,32 +475,57 @@ def search_routes():
     norm_cheapest = normalize_route(results.get("cheapest"), label="Cheapest Route", route_id="r_cheapest", id_map=id_map, name_map=name_map)
     norm_fewest = normalize_route(results.get("fewest_transfers"), label="Fewest Transfers", route_id="r_fewest_transfers", id_map=id_map, name_map=name_map)
 
-    v2_routes = rec_engine.generate_v2_recommendations(results)
-    for vr in v2_routes:
-        if "total_duration" not in vr:
-            vr["total_duration"] = vr.get("duration_minutes", 0)
-        if "total_cost" not in vr:
-            vr["total_cost"] = vr.get("fare", {}).get("amount", 0.0)
-        if "cost" not in vr:
-            vr["cost"] = vr.get("fare", {}).get("amount", 0.0)
-        if "duration" not in vr:
-            vr["duration"] = vr.get("duration_minutes", 0)
-        if "type" not in vr:
-            vr["type"] = vr.get("label", "").lower()
-        if "segments" not in vr:
-            vr["segments"] = vr.get("legs", [])
+    # Build v2_routes with geometry via normalize_route (same logic as NL path).
+    rec_raw = rec_engine.generate_v2_recommendations(results)
+    v2_routes = []
+    label_order = ["BEST", "FASTEST", "CHEAPEST", "LEAST WALKING"]
+    raw_by_label = {rr.get("label", ""): rr for rr in rec_raw}
+
+    for lbl in label_order:
+        rr = raw_by_label.get(lbl)
+        if not rr:
+            continue
+        raw_for_norm = {
+            "segments": rr.get("legs", []),
+            "total_duration": rr.get("duration_minutes", 0),
+            "total_cost": rr.get("fare", {}).get("amount", 0.0),
+            "transfers": rr.get("transfers", 0),
+        }
+        normed = normalize_route(
+            raw_for_norm,
+            label=lbl,
+            route_id=rr.get("route_id", "ta_001"),
+            id_map=id_map,
+            name_map=name_map
+        )
+        if normed is None:
+            continue
+        # Recompute total duration as final_arrival - first_departure
+        normed_legs = normed.get("legs", [])
+        first_dept = None
+        last_arr = None
+        for leg in normed_legs:
+            if leg.get("departure") and leg["departure"] != "N/A":
+                if first_dept is None:
+                    first_dept = leg["departure"]
+            if leg.get("arrival") and leg["arrival"] != "N/A":
+                last_arr = leg["arrival"]
+        if first_dept and last_arr:
+            import scheduler as _sched
+            fd = _sched.time_to_mins(first_dept)
+            la = _sched.time_to_mins(last_arr)
+            if la < fd:
+                la += 1440
+            total_journey_dur = la - fd
+            if total_journey_dur > 0:
+                normed["duration_minutes"] = total_journey_dur
+                normed["total_duration"] = total_journey_dur
+                normed["duration"] = total_journey_dur
+        normed["label"] = lbl
+        normed["route_id"] = rr.get("route_id", "ta_001") + "_" + lbl.lower().replace(" ", "_")
+        v2_routes.append(normed)
 
     all_routes = v2_routes if v2_routes else [r for r in [norm_fastest, norm_cheapest, norm_fewest] if r is not None]
-
-    recommendations_obj = {
-        "BEST": v2_routes[0] if len(v2_routes) > 0 else norm_fastest,
-        "FASTEST": norm_fastest,
-        "CHEAPEST": norm_cheapest,
-        "LEAST WALKING": v2_routes[3] if len(v2_routes) > 3 else (v2_routes[0] if len(v2_routes) > 0 else norm_fastest),
-        "fastest": norm_fastest,
-        "cheapest": norm_cheapest,
-        "fewest_transfers": norm_fewest
-    }
 
     intent_obj = {
         "origin": source,
@@ -426,7 +544,11 @@ def search_routes():
         "query": f"{source} to {destination}",
         "intent": intent_obj,
         "routes": all_routes,
-        "recommendations": recommendations_obj,
+        "recommendations": {
+            "fastest": norm_fastest,
+            "cheapest": norm_cheapest,
+            "fewest_transfers": norm_fewest
+        },
         "meta": meta_obj,
         "status": "OK",
         # Legacy keys for backward compatibility

@@ -98,7 +98,12 @@ class JourneyLeg:
             "provider": self.provider,
             "schedule": self.schedule,
             "status": self.status,
-            "source": self.source
+            "source": self.source,
+            # Explicit departure/arrival times set by route_engine (HH:MM format).
+            # These are preserved here so recommendation_engine and normalize_route
+            # can use them directly without re-parsing route_name.
+            "departure": self.departure if self.departure else None,
+            "arrival": self.arrival if self.arrival else None,
         }
 
     def to_v2_dict(self) -> Dict[str, Any]:
